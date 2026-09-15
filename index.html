@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arbiverse — Phase III: JPY Carry Trade</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#171B2E;
+    --navy-2:#20264A;
+    --gold:#C89B3C;
+    --gold-light:#E4C878;
+    --cream:#F3EAD8;
+    --paper:#FBF6EA;
+    --ink:#231C10;
+    --tulip:#B8342E;
+    --tulip-dark:#7E211D;
+    --stem:#3E6259;
+    --green:#4C7A5C;
+    --red:#B8342E;
+    --line: rgba(35,28,16,0.14);
+    --shadow: 0 10px 30px rgba(20,14,4,0.18);
+    --sub-font:'Calibri','Segoe UI',sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--navy);font-family:'Inter',sans-serif;color:var(--ink);min-height:100vh;}
+  .app{max-width:1200px;margin:0 auto;padding:18px;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+
+  /* ---------- HEADER ---------- */
+  .topbar{
+    position:sticky;top:0;z-index:40;
+    display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;
+    padding:10px 18px;margin-bottom:14px;
+    border:1px solid rgba(228,200,120,0.25);border-radius:4px;
+    background:linear-gradient(180deg, var(--navy-2), var(--navy));
+  }
+  .brand{display:flex;align-items:baseline;gap:10px;}
+  .brand .mark{font-family:'Fraunces',serif;font-weight:700;font-size:1.25rem;color:var(--gold-light);letter-spacing:0.5px;}
+  .brand .sub{font-family:var(--sub-font);font-size:0.74rem;color:rgba(243,234,216,0.65);}
+  .howto-topbtn{
+    font-family:var(--sub-font);font-size:0.76rem;font-weight:600;color:var(--gold-light);
+    background:transparent;border:1px solid rgba(228,200,120,0.4);border-radius:20px;padding:6px 14px;cursor:pointer;
+  }
+  .howto-topbtn:hover{background:rgba(228,200,120,0.1);}
+  .roundtag{font-family:'IBM Plex Mono';color:var(--gold-light);font-size:0.8rem;}
+
+  .topmetrics{display:flex;flex-wrap:wrap;gap:14px;width:100%;padding-top:8px;border-top:1px solid rgba(228,200,120,0.15);margin-top:6px;}
+  .tm{display:flex;flex-direction:column;gap:1px;min-width:92px;}
+  .tm .tlabel{font-family:var(--sub-font);font-size:0.63rem;text-transform:uppercase;letter-spacing:0.4px;color:rgba(243,234,216,0.55);}
+  .tm .tval{font-family:'IBM Plex Mono';font-size:0.88rem;font-weight:600;color:var(--cream);}
+  .tm .tval.neg{color:#e8877f;}
+  .tm .tval.pos{color:#8fd6a8;}
+  .status-pill{font-family:'IBM Plex Mono';font-size:0.72rem;font-weight:700;padding:3px 10px;border-radius:12px;display:inline-block;}
+  .status-pill.ACTIVE{background:rgba(76,122,92,0.25);color:#8fd6a8;border:1px solid rgba(76,122,92,0.6);}
+  .status-pill.AT_RISK{background:rgba(200,155,60,0.25);color:var(--gold-light);border:1px solid rgba(228,200,120,0.6);}
+  .status-pill.BANKRUPT{background:rgba(184,52,46,0.3);color:#f0a29c;border:1px solid rgba(184,52,46,0.7);}
+
+  /* ---------- LAYOUT ---------- */
+  .stage{display:none;}
+  .stage.active{display:block;}
+  .split{display:grid;grid-template-columns: 1fr 1.25fr;gap:0;border-radius:6px;overflow:hidden;box-shadow:var(--shadow);}
+  @media (max-width:860px){ .split{grid-template-columns:1fr;} }
+
+  .almanac{background:radial-gradient(120% 100% at 20% 0%, #232a4d 0%, #171B2E 60%);color:var(--cream);padding:26px 24px;position:relative;border-right:2px solid var(--gold);}
+  .desk{background:var(--paper);padding:26px 24px;}
+
+  h2.panel-title{font-family:var(--sub-font);font-weight:700;font-size:1.05rem;margin:0 0 14px 0;letter-spacing:0.2px;}
+  .almanac h2.panel-title{color:var(--gold-light);}
+  .desk h2.panel-title{color:var(--tulip-dark);border-bottom:1px solid var(--line);padding-bottom:10px;}
+
+  .narration{font-family:'Fraunces',serif;font-style:italic;font-size:0.98rem;line-height:1.55;color:rgba(243,234,216,0.92);margin-bottom:18px;}
+
+  /* Coin animation */
+  .coin-wrap{display:flex;justify-content:center;margin:6px 0 18px;}
+  .coin-svg{width:100px;height:100px;overflow:visible;}
+  .coin-group{transform-origin:60px 60px;animation:sway 4.5s ease-in-out infinite;}
+  @keyframes sway{0%,100%{transform:rotate(-4deg);}50%{transform:rotate(4deg);}}
+  .coin-face{transition:fill 1.1s ease, opacity 1.1s ease;}
+  .wilted .coin-group{animation:none;transform:rotate(-14deg);}
+  .wilted .coin-face{fill:#5a5a5a !important;}
+  .wilted .coin-yen{fill:#8a8a8a !important;}
+
+  /* Indicators */
+  .indicators{display:flex;flex-direction:column;gap:12px;margin-bottom:8px;}
+  .indicator-label{display:flex;justify-content:space-between;gap:10px;font-size:0.74rem;color:rgba(243,234,216,0.75);margin-bottom:4px;font-family:var(--sub-font);}
+  .indicator-label .iname{font-weight:700;}
+  .bar-track{height:7px;border-radius:4px;background:rgba(243,234,216,0.14);overflow:hidden;}
+  .bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--gold),var(--gold-light));transition:width 0.8s ease;}
+
+  .macro-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;}
+  .macro-cell{background:rgba(243,234,216,0.06);border-radius:4px;padding:8px 10px;}
+  .macro-cell .mlabel{font-family:var(--sub-font);font-size:0.65rem;text-transform:uppercase;color:rgba(243,234,216,0.55);letter-spacing:0.4px;}
+  .macro-cell .mval{font-family:'IBM Plex Mono';font-size:0.95rem;color:var(--gold-light);font-weight:600;}
+
+  /* News */
+  .news-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;}
+  .news-item{font-size:0.86rem;line-height:1.45;padding:10px 12px;background:rgba(243,234,216,0.06);border-left:2px solid var(--gold);border-radius:0 3px 3px 0;}
+  .truth-badge{display:inline-block;margin-top:6px;font-family:'IBM Plex Mono';font-size:0.72rem;color:var(--navy);background:var(--gold-light);padding:1px 7px;border-radius:10px;font-weight:600;}
+  .truth-locked{font-family:'IBM Plex Mono';font-size:0.72rem;color:rgba(243,234,216,0.45);}
+  .reveal-btn{margin-top:8px;padding:5px 11px;border:1px dashed rgba(228,200,120,0.5);background:transparent;color:var(--gold-light);font-family:var(--sub-font);font-weight:600;font-size:0.72rem;border-radius:4px;cursor:pointer;}
+  .reveal-btn:hover:not(:disabled){background:rgba(228,200,120,0.1);}
+  .reveal-btn:disabled{opacity:0.35;cursor:default;}
+  .news-cap-note{font-family:var(--sub-font);font-size:0.72rem;color:rgba(243,234,216,0.5);margin-top:10px;}
+
+  /* Trading desk */
+  .portfolio-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;}
+  @media (max-width:640px){.portfolio-bar{grid-template-columns:repeat(2,1fr);}}
+  .pcard{background:var(--cream);border:1px solid var(--line);border-radius:4px;padding:10px 12px;}
+  .pcard .plabel{font-size:0.66rem;text-transform:uppercase;letter-spacing:0.5px;color:#6b5a3a;font-family:var(--sub-font);}
+  .pcard .pval{font-family:'IBM Plex Mono';font-weight:600;font-size:0.98rem;color:var(--ink);}
+  .pcard.debt .pval{color:var(--tulip);}
+
+  .section-block{margin-bottom:22px;padding-bottom:18px;border-bottom:1px dashed var(--line);}
+  .section-block:last-of-type{border-bottom:none;}
+  .section-title{font-family:var(--sub-font);font-weight:700;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.4px;color:var(--tulip-dark);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  .section-title .stepnum{background:var(--tulip-dark);color:white;width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:0.68rem;flex-shrink:0;}
+  .section-hint{font-family:var(--sub-font);font-size:0.72rem;color:#8a7a55;margin-bottom:10px;}
+
+  .asset-row{display:grid;grid-template-columns:1.3fr 0.8fr 0.9fr 0.9fr auto auto;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);}
+  .asset-row:last-child{border-bottom:none;}
+  .asset-name{font-family:var(--sub-font);font-weight:700;font-size:0.84rem;}
+  .asset-sub{font-family:'IBM Plex Mono';font-size:0.72rem;color:#6b5a3a;}
+  .qty-input{width:76px;padding:6px 8px;border:1px solid var(--line);border-radius:4px;font-family:'IBM Plex Mono';font-size:0.82rem;}
+  .mini-btn{padding:7px 12px;border-radius:4px;border:1px solid var(--tulip-dark);background:white;color:var(--tulip-dark);font-weight:600;cursor:pointer;font-size:0.76rem;font-family:var(--sub-font);white-space:nowrap;}
+  .mini-btn.buy{background:var(--tulip-dark);color:white;}
+  .mini-btn.sell{background:var(--green);color:white;border-color:var(--green);}
+  .mini-btn:disabled{opacity:0.35;cursor:default;}
+  .row-flex{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+
+  .loan-row{display:grid;grid-template-columns:auto 1fr auto auto auto;gap:10px;align-items:center;padding:9px 10px;border:1px solid var(--line);border-radius:4px;background:white;margin-bottom:8px;font-size:0.8rem;}
+  .loan-id{font-family:'IBM Plex Mono';font-weight:700;color:var(--tulip-dark);}
+  .loan-empty{padding:14px;text-align:center;color:#8a7a55;font-size:0.82rem;border:1px dashed var(--line);border-radius:4px;font-family:var(--sub-font);}
+
+  .borrow-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  .borrow-btn{padding:8px 15px;border:1px solid var(--tulip-dark);border-radius:20px;background:transparent;color:var(--tulip-dark);font-family:'IBM Plex Mono';font-weight:600;cursor:pointer;font-size:0.82rem;}
+  .borrow-btn.selected{background:var(--tulip-dark);color:var(--paper);}
+  .borrow-btn:disabled{opacity:0.3;cursor:default;}
+  .borrow-summary{font-family:'IBM Plex Mono';font-size:0.78rem;color:#6b5a3a;margin-top:8px;line-height:1.6;}
+  .confirm-btn{margin-top:10px;padding:9px 18px;border:none;border-radius:4px;background:var(--green);color:white;font-weight:600;cursor:pointer;font-size:0.85rem;font-family:var(--sub-font);}
+  .confirm-btn:disabled{background:#9fae9f;cursor:default;}
+
+  .decision-log{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;max-height:180px;overflow-y:auto;}
+  .decision-log li{font-family:'IBM Plex Mono';font-size:0.76rem;padding:6px 9px;background:var(--cream);border-radius:3px;}
+  .decision-log.empty{font-family:var(--sub-font);color:#8a7a55;font-size:0.8rem;font-style:italic;}
+
+  .actions-footer{margin-top:20px;display:flex;justify-content:flex-end;}
+  .end-round-btn{padding:11px 22px;background:var(--navy);color:var(--gold-light);border:none;border-radius:4px;font-weight:700;cursor:pointer;font-size:0.88rem;letter-spacing:0.3px;font-family:var(--sub-font);}
+  .end-round-btn:hover{background:#0f1224;}
+
+  /* Center cards */
+  .center-card{max-width:680px;margin:40px auto;background:var(--paper);border-radius:8px;box-shadow:var(--shadow);padding:36px 34px;text-align:left;}
+  .center-card h1{font-family:'Fraunces',serif;font-size:1.7rem;margin:0 0 6px;color:var(--tulip-dark);}
+  .center-card .tag{font-family:var(--sub-font);font-size:0.85rem;color:#6b5a3a;margin-bottom:20px;}
+  .center-card p{line-height:1.6;font-size:0.94rem;}
+  .role-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:20px 0;}
+  @media (max-width:640px){.role-grid{grid-template-columns:1fr;}}
+  .role-card{border:2px solid var(--line);border-radius:6px;padding:14px;cursor:pointer;transition:border-color 0.2s, transform 0.15s;background:white;}
+  .role-card:hover{transform:translateY(-2px);}
+  .role-card.selected{border-color:var(--tulip-dark);background:#fbe9e7;}
+  .role-card h3{font-family:'Fraunces',serif;font-size:1rem;margin:0 0 6px;}
+  .role-card p{font-size:0.78rem;color:#6b5a3a;margin:0 0 4px;line-height:1.4;font-family:var(--sub-font);}
+  .role-card .stat-line{font-family:'IBM Plex Mono';font-size:0.68rem;color:#6b5a3a;display:block;margin-bottom:2px;}
+  .role-card .cap-line{font-family:var(--sub-font);font-size:0.7rem;color:var(--tulip-dark);font-weight:700;margin-top:6px;}
+  .big-btn{margin-top:12px;padding:12px 26px;background:var(--tulip-dark);color:white;border:none;border-radius:5px;font-weight:700;cursor:pointer;font-size:0.92rem;font-family:var(--sub-font);}
+  .big-btn:disabled{background:#c7b9a9;cursor:default;}
+  .big-btn:hover:not(:disabled){background:#5f1815;}
+
+  .debrief-block{margin:14px 0;padding:14px 16px;border-left:3px solid var(--gold);background:#fbf1de;border-radius:0 4px 4px 0;}
+  .debrief-block h4{margin:0 0 6px;font-family:var(--sub-font);font-weight:700;font-size:0.95rem;color:var(--tulip-dark);}
+  .debrief-block p{margin:0;font-size:0.85rem;line-height:1.5;}
+  .feedback-list{margin:8px 0 0;padding-left:18px;font-size:0.85rem;line-height:1.6;}
+
+  .final-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0;}
+  @media (max-width:640px){.final-stats{grid-template-columns:1fr;}}
+  .final-stat{background:white;border:1px solid var(--line);border-radius:4px;padding:12px;}
+  .final-stat .flabel{font-size:0.68rem;text-transform:uppercase;color:#6b5a3a;letter-spacing:0.4px;font-family:var(--sub-font);}
+  .final-stat .fval{font-family:'IBM Plex Mono';font-size:1.05rem;font-weight:700;}
+  .fval.pos{color:var(--green);}
+  .fval.neg{color:var(--tulip);}
+
+  .score-block{margin:10px 0 18px;}
+  .score-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;font-family:var(--sub-font);font-size:0.82rem;}
+  .score-row .sname{font-weight:600;}
+  .score-row .sval{font-family:'IBM Plex Mono';font-weight:700;}
+  .score-bar-track{height:8px;border-radius:4px;background:var(--line);overflow:hidden;margin-bottom:12px;}
+  .score-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--tulip-dark),var(--gold));}
+  .score-note{font-family:var(--sub-font);font-size:0.72rem;color:#8a7a55;margin:-6px 0 12px;}
+  .score-total{font-family:'Fraunces',serif;font-weight:700;font-size:1.5rem;color:var(--tulip-dark);text-align:center;margin:14px 0;}
+
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--navy);color:var(--gold-light);padding:10px 18px;border-radius:4px;font-size:0.85rem;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:opacity 0.3s, transform 0.3s;font-family:'IBM Plex Mono';z-index:100;max-width:90vw;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(-6px);}
+
+  /* ---------- SPLASH ---------- */
+  .splash-hero{position:relative;min-height:82vh;border-radius:8px;overflow:hidden;background:radial-gradient(140% 100% at 50% 0%, #262d54 0%, #171B2E 55%, #100f1c 100%);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;}
+  .splash-hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(228,200,120,0.05) 1px, transparent 1px),linear-gradient(90deg, rgba(228,200,120,0.05) 1px, transparent 1px);background-size:42px 42px;mask-image:radial-gradient(60% 60% at 50% 40%, black 30%, transparent 80%);animation:gridDrift 18s linear infinite;}
+  @keyframes gridDrift{0%{background-position:0 0,0 0;}100%{background-position:42px 84px, 84px 42px;}}
+
+  .ticker-row{position:absolute;top:0;left:0;right:0;overflow:hidden;background:rgba(228,200,120,0.06);border-bottom:1px solid rgba(228,200,120,0.15);padding:7px 0;z-index:1;}
+  .ticker-track{display:flex;gap:26px;white-space:nowrap;width:max-content;font-family:'IBM Plex Mono';font-size:0.72rem;color:rgba(228,200,120,0.55);animation:tickerScroll 32s linear infinite;}
+  .ticker-track span:nth-child(odd){color:rgba(76,122,92,0.75);}
+  @keyframes tickerScroll{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+
+  .scale-icon{position:absolute;top:14%;left:50%;width:170px;height:auto;opacity:0.22;pointer-events:none;transform:translateX(-50%);}
+  .scale-swing{transform-origin:100px 10px;animation:scaleTilt 5s ease-in-out infinite;}
+  @keyframes scaleTilt{0%,100%{transform:rotate(-4deg);}50%{transform:rotate(4deg);}}
+
+  .chart-line{position:absolute;bottom:8%;left:0;right:0;height:80px;opacity:0.5;pointer-events:none;}
+  .chart-line svg{width:200%;height:100%;animation:chartScroll 14s linear infinite;}
+  @keyframes chartScroll{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+
+  .petal-field{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:1;}
+  .petal-field span{position:absolute;top:-30px;font-size:1.1rem;opacity:0.75;animation:fall linear infinite;}
+  @keyframes fall{0%{transform:translateY(-40px) rotate(0deg);opacity:0;}10%{opacity:0.8;}100%{transform:translateY(95vh) rotate(360deg);opacity:0;}}
+
+  .glow-orb{position:absolute;border-radius:50%;filter:blur(60px);pointer-events:none;z-index:0;animation:orbPulse 6s ease-in-out infinite;}
+  .glow-orb.orb1{width:340px;height:340px;top:8%;left:8%;background:radial-gradient(circle, rgba(228,200,120,0.35), transparent 70%);animation-delay:0s;}
+  .glow-orb.orb2{width:300px;height:300px;bottom:6%;right:10%;background:radial-gradient(circle, rgba(184,52,46,0.28), transparent 70%);animation-delay:2.5s;}
+  @keyframes orbPulse{0%,100%{opacity:0.5;transform:scale(1);}50%{opacity:0.9;transform:scale(1.15);}}
+
+  .twinkle-field span{position:absolute;width:3px;height:3px;border-radius:50%;background:var(--gold-light);box-shadow:0 0 6px 1px rgba(228,200,120,0.8);animation:twinkle ease-in-out infinite;}
+  @keyframes twinkle{0%,100%{opacity:0.15;}50%{opacity:1;}}
+
+  .splash-content{position:relative;z-index:2;text-align:center;padding:20px;}
+  .splash-eyebrow{font-family:var(--sub-font);font-size:1.05rem;font-weight:600;color:var(--gold-light);letter-spacing:2px;opacity:0;animation:riseIn 0.7s ease forwards 0.15s;}
+  .splash-title{font-family:'Fraunces',serif;font-weight:700;font-size:6.4rem;line-height:1;margin:14px 0 4px;color:var(--cream);letter-spacing:1px;opacity:0;transform:translateY(18px) scale(0.96);display:flex;align-items:center;justify-content:center;gap:18px;background:linear-gradient(100deg, var(--cream) 30%, var(--gold-light) 45%, var(--cream) 60%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;animation:riseIn 0.9s cubic-bezier(.2,.8,.2,1) forwards 0.35s, shimmerText 5s linear infinite 1.3s;}
+  @supports (-webkit-background-clip:text){.splash-title{-webkit-text-fill-color:transparent;}}
+  @keyframes shimmerText{0%{background-position:250% 0;}100%{background-position:-50% 0;}}
+  @media (max-width:640px){.splash-title{font-size:3rem;gap:8px;}}
+  .coin-spin{display:inline-block;font-size:0.55em;filter:drop-shadow(0 0 10px rgba(228,200,120,0.6));animation:coinFlip 3.2s linear infinite;}
+  .coin-spin.right{animation-delay:1.6s;}
+  @keyframes coinFlip{0%{transform:rotateY(0deg);}100%{transform:rotateY(360deg);}}
+
+  .title-underline{width:0;height:2px;margin:6px auto 14px;background:linear-gradient(90deg, transparent, var(--gold-light), transparent);animation:drawLine 1s ease forwards 1.1s, shimmerLine 2.4s ease-in-out infinite 2.2s;}
+  @keyframes drawLine{to{width:220px;}}
+  @keyframes shimmerLine{0%,100%{opacity:0.5;}50%{opacity:1;}}
+
+  .splash-sub{font-family:var(--sub-font);font-size:1rem;color:rgba(243,234,216,0.75);margin-bottom:34px;opacity:0;animation:riseIn 0.8s ease forwards 0.65s;}
+  @keyframes riseIn{to{opacity:1;transform:translateY(0) scale(1);}}
+
+  .splash-btn-row{display:flex;align-items:center;justify-content:center;gap:14px;opacity:0;animation:riseIn 0.8s ease forwards 1.35s;flex-wrap:wrap;}
+  .start-btn{padding:14px 46px;font-family:var(--sub-font);font-weight:700;font-size:1rem;letter-spacing:0.4px;background:var(--gold);color:var(--navy);border:none;border-radius:30px;cursor:pointer;animation:glowPulse 2.4s ease-in-out infinite 2.2s;}
+  .start-btn:hover{background:var(--gold-light);}
+  @keyframes glowPulse{0%,100%{box-shadow:0 0 0 0 rgba(228,200,120,0.45);}50%{box-shadow:0 0 0 14px rgba(228,200,120,0);}}
+  .howto-btn{padding:14px 30px;font-family:var(--sub-font);font-weight:600;font-size:0.92rem;letter-spacing:0.2px;background:transparent;color:var(--cream);border:1px solid rgba(243,234,216,0.4);border-radius:30px;cursor:pointer;transition:border-color 0.2s, background 0.2s;}
+  .howto-btn:hover{border-color:var(--gold-light);background:rgba(228,200,120,0.08);}
+
+  /* ---------- GUIDE MODAL ---------- */
+  .modal-overlay{position:fixed;inset:0;background:rgba(10,10,20,0.68);display:none;align-items:center;justify-content:center;z-index:80;padding:20px;}
+  .modal-overlay.show{display:flex;}
+  .guide-card{max-width:640px;width:100%;max-height:86vh;overflow-y:auto;}
+  .guide-card .tag{margin-bottom:18px;font-family:var(--sub-font);}
+  .guide-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:22px;}
+  @media (max-width:640px){.guide-grid{grid-template-columns:1fr;}}
+  .guide-step{display:flex;gap:10px;align-items:flex-start;background:white;border:1px solid var(--line);border-radius:6px;padding:12px;}
+  .guide-step .gnum{font-family:'IBM Plex Mono';font-weight:700;font-size:0.8rem;color:var(--paper);background:var(--tulip-dark);width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .guide-step p{margin:0;font-size:0.84rem;line-height:1.4;font-family:var(--sub-font);}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar" id="topbar" style="display:none;">
+    <div class="brand">
+      <span class="mark">💴 Arbiverse</span>
+      <span class="sub">Phase III — The JPY Carry Trade</span>
+    </div>
+    <div class="status">
+      <button class="howto-topbtn" id="topHowtoBtn">How to play</button>
+    </div>
+    <div class="roundtag" id="roundTag">Setup</div>
+    <div class="topmetrics" id="topMetrics"></div>
+  </div>
+
+  <!-- SPLASH / HOME -->
+  <div class="stage active" id="stage-splash">
+    <div class="splash-hero">
+      <div class="ticker-row" aria-hidden="true">
+        <div class="ticker-track">
+          <span>+2.4%</span><span>$USD</span><span>▲ 1,208</span><span>−0.8%</span><span>¥ JPY</span><span>▲ 3,441</span>
+          <span>+2.4%</span><span>$USD</span><span>▲ 1,208</span><span>−0.8%</span><span>¥ JPY</span><span>▲ 3,441</span>
+          <span>+5.1%</span><span>€ EUR</span><span>▼ 902</span><span>+2.4%</span><span>$USD</span><span>▲ 1,208</span>
+          <span>−0.8%</span><span>¥ JPY</span><span>▲ 3,441</span><span>+5.1%</span><span>€ EUR</span><span>▼ 902</span>
+        </div>
+      </div>
+      <div class="glow-orb orb1" aria-hidden="true"></div>
+      <div class="glow-orb orb2" aria-hidden="true"></div>
+      <div class="twinkle-field" id="twinkleField" aria-hidden="true"></div>
+      <div class="petal-field" id="petalField"></div>
+      <svg class="scale-icon" viewBox="0 0 200 160" aria-hidden="true">
+        <g class="scale-swing">
+          <line x1="100" y1="10" x2="100" y2="115" stroke="var(--gold-light)" stroke-width="2.5"/>
+          <line x1="30" y1="40" x2="170" y2="40" stroke="var(--gold-light)" stroke-width="2.5"/>
+          <line x1="30" y1="40" x2="18" y2="80" stroke="var(--gold-light)" stroke-width="1.5"/>
+          <line x1="30" y1="40" x2="42" y2="80" stroke="var(--gold-light)" stroke-width="1.5"/>
+          <path d="M10,80 A20,14 0 0 0 50,80 Z" fill="none" stroke="var(--gold-light)" stroke-width="1.5"/>
+          <line x1="170" y1="40" x2="158" y2="80" stroke="var(--gold-light)" stroke-width="1.5"/>
+          <line x1="170" y1="40" x2="182" y2="80" stroke="var(--gold-light)" stroke-width="1.5"/>
+          <path d="M150,80 A20,14 0 0 0 190,80 Z" fill="none" stroke="var(--gold-light)" stroke-width="1.5"/>
+          <path d="M85,115 L115,115 L108,128 L92,128 Z" fill="var(--gold-light)"/>
+          <ellipse cx="100" cy="132" rx="30" ry="6" fill="var(--gold-light)"/>
+        </g>
+      </svg>
+      <div class="chart-line" aria-hidden="true">
+        <svg viewBox="0 0 600 120" preserveAspectRatio="none">
+          <polyline points="0,90 40,70 80,85 120,50 160,60 200,30 240,45 280,20 320,40 360,15 400,35 440,10 480,28 520,8 560,22 600,5"
+            fill="none" stroke="var(--gold)" stroke-width="2" opacity="0.55"/>
+        </svg>
+      </div>
+      <div class="splash-content">
+        <div class="splash-eyebrow">A Financial Arbitrage Game</div>
+        <h1 class="splash-title"><span class="coin-spin left">🪙</span>Arbiverse<span class="coin-spin right">🪙</span></h1>
+        <div class="title-underline"></div>
+        <div class="splash-sub">Phase III — The JPY Carry Trade</div>
+        <div class="splash-btn-row">
+          <button class="start-btn" id="splashStartBtn">Start</button>
+          <button class="howto-btn" id="splashHowtoBtn">How to play</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROLE SELECT -->
+  <div class="stage" id="stage-roles">
+    <div class="center-card">
+      <h1>Choose your role</h1>
+      <div class="tag">Each role sets your capital base, your JPY borrowing ceiling, and the price of information.</div>
+      <div class="role-grid" id="roleGrid"></div>
+      <button class="big-btn" id="rolesNextBtn" disabled>Confirm role</button>
+    </div>
+  </div>
+
+  <!-- ROLE CONFIRMATION -->
+  <div class="stage" id="stage-confirm">
+    <div class="center-card" id="confirmCard"></div>
+  </div>
+
+  <!-- ROUND BRIEFING -->
+  <div class="stage" id="stage-briefing">
+    <div class="center-card" id="briefingCard"></div>
+  </div>
+
+  <!-- ROUND PLAY -->
+  <div class="stage" id="stage-round">
+    <div class="split">
+      <div class="almanac">
+        <h2 class="panel-title">Market Almanac</h2>
+        <div class="narration" id="narrationText"></div>
+
+        <div class="coin-wrap">
+          <svg class="coin-svg" id="coinSvg" viewBox="0 0 120 120">
+            <g class="coin-group">
+              <circle class="coin-face" cx="60" cy="60" r="46" fill="var(--gold)" stroke="var(--gold-light)" stroke-width="3"/>
+              <circle class="coin-face" cx="60" cy="60" r="34" fill="none" stroke="var(--navy)" stroke-width="2" opacity="0.35"/>
+              <text class="coin-yen" x="60" y="76" text-anchor="middle" font-size="42" font-family="Georgia, serif" font-weight="700" fill="var(--navy)">¥</text>
+            </g>
+          </svg>
+        </div>
+
+        <div class="macro-grid" id="macroGrid"></div>
+
+        <div class="indicators" id="indicatorsWrap"></div>
+
+        <h2 class="panel-title" style="margin-top:20px;">News &amp; Paid Information</h2>
+        <ul class="news-list" id="newsList"></ul>
+        <div class="news-cap-note" id="newsCapNote"></div>
+      </div>
+
+      <div class="desk">
+        <h2 class="panel-title">Trading Desk</h2>
+        <div class="portfolio-bar" id="portfolioBar"></div>
+
+        <div class="section-block">
+          <div class="section-title"><span class="stepnum">1</span> Review existing loans</div>
+          <div id="loanList"></div>
+        </div>
+
+        <div class="section-block">
+          <div class="section-title"><span class="stepnum">2</span> Sell / Withdraw</div>
+          <div class="section-hint">Free up cash before you repay or borrow.</div>
+          <div id="sellWithdrawArea"></div>
+        </div>
+
+        <div class="section-block">
+          <div class="section-title"><span class="stepnum">3</span> Repay existing loans</div>
+          <div class="section-hint">Full repayment only — principal plus accrued interest, in USD at today's rate.</div>
+          <div id="repayArea"></div>
+        </div>
+
+        <div class="section-block">
+          <div class="section-title"><span class="stepnum">4</span> Borrow JPY</div>
+          <div class="section-hint">Choose a percentage of your Max JPY Principal to request this round.</div>
+          <div id="borrowArea"></div>
+        </div>
+
+        <div class="section-block">
+          <div class="section-title"><span class="stepnum">5</span> Buy / Deposit / Hold</div>
+          <div class="section-hint">Deploy free cash into risk assets or park it in US Cash.</div>
+          <div id="buyDepositArea"></div>
+        </div>
+
+        <div class="section-block">
+          <div class="section-title"><span class="stepnum">6</span> Review decisions</div>
+          <ul class="decision-log" id="decisionLog"></ul>
+        </div>
+
+        <div class="actions-footer">
+          <button class="end-round-btn" id="lockInBtn">Lock in round</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROUND DEBRIEF (Market Close / P&L Update) -->
+  <div class="stage" id="stage-debrief">
+    <div class="center-card" id="debriefCard"></div>
+  </div>
+
+  <!-- END PHASE SETTLEMENT -->
+  <div class="stage" id="stage-settlement">
+    <div class="center-card" id="settlementCard"></div>
+  </div>
+
+  <!-- FINAL RESULT -->
+  <div class="stage" id="stage-final">
+    <div class="center-card" id="finalCard"></div>
+  </div>
+
+  <!-- DEBRIEF (EDUCATIONAL) -->
+  <div class="stage" id="stage-fulldebrief">
+    <div class="center-card" id="fullDebriefCard"></div>
+  </div>
+
+</div>
+
+<!-- HOW TO PLAY MODAL -->
+<div class="modal-overlay" id="guideModal">
+  <div class="center-card guide-card">
+    <h1>How to play — JPY Carry Trade</h1>
+    <div class="tag">4 rounds. Borrow yen at near-zero rates, hold risk assets funded by the spread, and survive the unwind.</div>
+    <div class="guide-grid">
+      <div class="guide-step"><span class="gnum">1</span><p>Each round opens with market news and BOJ / FX data. Paying for a reveal shows how reliable one story is.</p></div>
+      <div class="guide-step"><span class="gnum">2</span><p>Review any open JPY loans — principal and accrued interest are tracked separately per loan.</p></div>
+      <div class="guide-step"><span class="gnum">3</span><p>Sell assets or withdraw US Cash first if you need liquidity.</p></div>
+      <div class="guide-step"><span class="gnum">4</span><p>Repay a loan in full if you have the USD cash for it — no partial repayments.</p></div>
+      <div class="guide-step"><span class="gnum">5</span><p>Borrow JPY as a % of your role's cap, then buy US Tech, S&amp;P 500, or deposit into US Cash.</p></div>
+      <div class="guide-step"><span class="gnum">6</span><p>After round 4, everything is auto-liquidated and all yen debt is settled at the final rate.</p></div>
+    </div>
+    <button class="big-btn" id="guideCloseBtn">Got it</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =====================================================================
+   ARBIVERSE PHASE III — JPY CARRY TRADE
+   Financial engine (pure functions) is kept separate from UI rendering.
+   ===================================================================== */
+
+/* ---------------- GAME DATA ---------------- */
+const ROLES = {
+  conservative:{
+    key:'conservative', name:'Conservative Investor',
+    maxUSD:80000, maxJPY:12000000, infoCost:200, extraSignal:false,
+    desc:'Smallest capital base and the tightest JPY ceiling. Wins by staying liquid and solvent.'
+  },
+  hunter:{
+    key:'hunter', name:'Information Hunter',
+    maxUSD:100000, maxJPY:15000000, infoCost:100, extraSignal:true,
+    desc:'Cheapest information and an extra signal per round. Wins by knowing more than the room.'
+  },
+  speculator:{
+    key:'speculator', name:'Speculator',
+    maxUSD:120000, maxJPY:18000000, infoCost:300, extraSignal:false,
+    desc:'Largest capital base and the highest JPY ceiling. Highest information cost. Wins big or loses big.'
+  }
+};
+
+const IND_LABELS = {
+  speculation:'Speculation — bubble risk & FOMO',
+  liquidity:'Liquidity — ease of exiting positions',
+  confidence:'Confidence — market optimism'
+};
+
+// Each round: BOJ funding rate (annual), USDJPY spot, US Tech & S&P 500 prices (USD),
+// US Cash return for the round (defensive asset only), plus narration/news/indicators.
+const ROUNDS = [
+  {
+    id:1, label:'Round 1 — The Build-Up', months:6,
+    bojRate:0.0025, usdjpy:105, techPrice:100, spPrice:100, usCashReturn:0.015,
+    narration:"The Bank of Japan holds its policy rate near zero. Borrowing yen is historically cheap, and funds are starting to fund higher-yielding positions abroad with it.",
+    indicators:{ speculation:35, liquidity:80, confidence:62 },
+    news:[
+      {text:"The Bank of Japan has held its policy rate near zero for years, keeping yen funding costs historically low.", truth:95},
+      {text:"A growing number of leveraged funds are reportedly opening yen-funded positions to capture the rate spread.", truth:60},
+      {text:"Rumors suggest a major central bank could surprise markets with a rate move within days.", truth:null},
+      {text:"The Fed funds rate remains well above BOJ policy, keeping the JPY funding spread wide for now.", truth:90, hunterOnly:true}
+    ]
+  },
+  {
+    id:2, label:'Round 2 — Carry Trade Nirvana', months:6,
+    bojRate:0.005, usdjpy:115, techPrice:118, spPrice:112, usCashReturn:0.02,
+    narration:"Implied volatility on the yen has fallen to multi-year lows. Leveraged carry positions look safer than ever, and that calm is pulling in far more capital.",
+    indicators:{ speculation:68, liquidity:85, confidence:88 },
+    news:[
+      {text:"Implied volatility on the yen has fallen to multi-year lows, making leveraged carry positions look unusually safe.", truth:80},
+      {text:"Hedge funds are reportedly increasing carry trade exposure to record levels on the low-volatility backdrop.", truth:55},
+      {text:"Some strategists warn that a crowded trade like this can unwind violently if sentiment turns — few expect that this quarter.", truth:null},
+      {text:"BOJ officials signal any policy normalization will be gradual, with no rate shock expected this year.", truth:70, hunterOnly:true}
+    ]
+  },
+  {
+    id:3, label:'Round 3 — Cracks Appear', months:6,
+    bojRate:0.0075, usdjpy:108, techPrice:110, spPrice:105, usCashReturn:0.012,
+    narration:"Credit markets abroad are showing real stress. The yen has started strengthening unexpectedly, and buyers for carry positions are getting harder to find.",
+    indicators:{ speculation:82, liquidity:45, confidence:58 },
+    news:[
+      {text:"US mortgage-credit defaults are rising sharply, raising fears of a broader risk-off move that hits carry trades hardest.", truth:75},
+      {text:"A major bank calls the disruption 'contained' and says any unwind, if it happens, will be gradual rather than sudden.", truth:20},
+      {text:"The yen has strengthened against several currencies in recent weeks, a pattern traders associate with early-stage carry unwinds.", truth:80},
+      {text:"BOJ meeting minutes show growing internal debate over whether to hike further into the turmoil.", truth:55, hunterOnly:true}
+    ]
+  },
+  {
+    id:4, label:'Round 4 — The Unwind', months:6,
+    bojRate:0.005, usdjpy:90, techPrice:60, spPrice:70, usCashReturn:0.008,
+    narration:"Global deleveraging accelerates. Leveraged funds are forced to close carry positions all at once, and the yen surges as the trade unwinds.",
+    indicators:{ speculation:92, liquidity:25, confidence:30 },
+    news:[
+      {text:"Several large financial institutions report severe liquidity strains over the past week.", truth:90},
+      {text:"Officials say the strain is contained to a handful of isolated firms.", truth:15},
+      {text:"Leveraged funds report forced unwinding of carry positions as margin calls hit across the board.", truth:88},
+      {text:"BOJ signals emergency coordination with other central banks to stabilize funding markets.", truth:70, hunterOnly:true}
+    ]
+  }
+];
+
+const ASSET_LABELS = { tech:'US Tech', sp:'S&P 500' };
+
+/* ---------------- FINANCE ENGINE (pure functions) ---------------- */
+const Finance = {
+  effectiveMaxJPY(role, usdjpy){
+    return Math.min(role.maxJPY, role.maxUSD * usdjpy);
+  },
+  outstandingPrincipal(loans){
+    return loans.reduce((s,l)=>s+l.principal,0);
+  },
+  outstandingTotalDue(loans){
+    return loans.reduce((s,l)=>s+l.principal+l.accruedInterest,0);
+  },
+  remainingCapacity(role, usdjpy, loans){
+    return Math.max(0, this.effectiveMaxJPY(role, usdjpy) - this.outstandingPrincipal(loans));
+  },
+  quoteBorrow(pct, role, usdjpy, loans){
+    const requested = pct * role.maxJPY;
+    const remaining = this.remainingCapacity(role, usdjpy, loans);
+    const accepted = Math.min(requested, remaining);
+    const borrowedUSD = usdjpy>0 ? accepted/usdjpy : 0;
+    return { requested, remaining, accepted, borrowedUSD };
+  },
+  accrueLoanInterest(loan, bojRateAnnual, months){
+    return loan.principal * bojRateAnnual * (months/12);
+  },
+  repaymentQuote(loan, usdjpy){
+    const totalJPYDue = loan.principal + loan.accruedInterest;
+    const usdRequired = totalJPYDue/usdjpy;
+    return { totalJPYDue, usdRequired };
+  },
+  buyCost(qty, price){ return qty*price; },
+  sellProceeds(qty, price){ return qty*price; },
+  grossPortfolioValue(freeCash, techQty, techPrice, spQty, spPrice, usCashBalance){
+    return freeCash + techQty*techPrice + spQty*spPrice + usCashBalance;
+  },
+  usdDebtMTM(loans, usdjpy){
+    return this.outstandingTotalDue(loans)/usdjpy;
+  },
+  netWealth(gross, debtMTM){ return gross - debtMTM; },
+  status(netWealthVal, bankrupt){
+    if(bankrupt) return 'BANKRUPT';
+    return netWealthVal >= 0 ? 'ACTIVE' : 'AT_RISK';
+  },
+  closeLoanMetrics(loan, usdjpyAtClose){
+    const borrowedUSD = loan.principal / loan.usdjpyAtOpen;
+    const principalRepayUSD = loan.principal / usdjpyAtClose;
+    const interestRepayUSD = loan.accruedInterest / usdjpyAtClose;
+    const fxPnL = borrowedUSD - principalRepayUSD;
+    const interestCost = interestRepayUSD;
+    return { borrowedUSD, principalRepayUSD, interestRepayUSD, fxPnL, interestCost };
+  }
+};
+
+/* ---------------- STATE ---------------- */
+const $ = id => document.getElementById(id);
+let state = null;
+
+function newState(role){
+  return {
+    role,
+    roundIndex: 0,               // 0..3 => Round 1..4
+    freeCash: role.maxUSD,       // starting Free Cash = Max USD Equivalent
+    holdings: { tech:0, sp:0 },
+    usCashBalance: 0,
+    loans: [],                   // {id, openRound, principal, accruedInterest, usdjpyAtOpen}
+    closedLoans: [],             // metrics recorded at repay/settlement time
+    nextLoanId: 1,
+    infoRevealedThisRound: 0,
+    infoMaxThisRound: 1,
+    revealedIdxThisRound: new Set(),
+    totalInfoCost: 0,
+    totalInfoRevealsUsed: 0,
+    totalInfoRevealsAvailable: 0,
+    totalTechBuyCost:0, totalTechSellProceeds:0,
+    totalSPBuyCost:0, totalSPSellProceeds:0,
+    totalUSCashInterest:0,
+    roundLog: [],                // this round's action log (strings)
+    perRoundSnapshots: [],       // after each round's market close
+    initialWealth: role.maxUSD,
+    bankrupt:false,
+    invalidAttempts:0,
+    roundsWithAction:0
+  };
+}
+
+function fmtUSD(n){
+  const sign = n<0 ? '-$' : '$';
+  return sign + Math.abs(Math.round(n)).toLocaleString();
+}
+function fmtJPY(n){
+  const sign = n<0 ? '-¥' : '¥';
+  return sign + Math.abs(Math.round(n)).toLocaleString();
+}
+function clamp(n, lo, hi){ return Math.max(lo, Math.min(hi, n)); }
+
+function showStage(id){
+  document.querySelectorAll('.stage').forEach(s=>s.classList.remove('active'));
+  $(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function toast(msg){
+  const t=$('toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove('show'),2400);
+}
+
+/* ---------------- GUIDE MODAL ---------------- */
+function openGuide(){ $('guideModal').classList.add('show'); }
+function closeGuide(){ $('guideModal').classList.remove('show'); }
+$('guideCloseBtn').onclick=closeGuide;
+$('splashHowtoBtn').onclick=openGuide;
+$('topHowtoBtn').onclick=openGuide;
+
+/* ---------------- DECOR (splash) ---------------- */
+(function initPetals(){
+  const field=$('petalField');
+  const emojis=['💴','💰','🪙','📈','💹','⚖️'];
+  for(let i=0;i<16;i++){
+    const s=document.createElement('span');
+    s.textContent=emojis[i%emojis.length];
+    s.style.left=Math.random()*100+'%';
+    s.style.fontSize=(0.7+Math.random()*0.9)+'rem';
+    s.style.animationDuration=(7+Math.random()*8)+'s';
+    s.style.animationDelay=(Math.random()*8)+'s';
+    field.appendChild(s);
+  }
+})();
+(function initTwinkles(){
+  const field=$('twinkleField');
+  for(let i=0;i<24;i++){
+    const s=document.createElement('span');
+    s.style.top=Math.random()*100+'%';
+    s.style.left=Math.random()*100+'%';
+    s.style.animationDuration=(1.6+Math.random()*2.4)+'s';
+    s.style.animationDelay=(Math.random()*3)+'s';
+    field.appendChild(s);
+  }
+})();
+
+/* ---------------- ROLE SELECT ---------------- */
+let pendingRoleKey=null;
+function renderRoles(){
+  const grid=$('roleGrid'); grid.innerHTML='';
+  Object.values(ROLES).forEach(r=>{
+    const card=document.createElement('div');
+    card.className='role-card'; card.dataset.role=r.key;
+    card.innerHTML=`<h3>${r.name}</h3><p>${r.desc}</p>
+      <span class="stat-line">Max USD Equivalent: ${fmtUSD(r.maxUSD)}</span>
+      <span class="stat-line">Max JPY Principal: ${fmtJPY(r.maxJPY)}</span>
+      <span class="stat-line">Information cost: ${fmtUSD(r.infoCost)}${r.extraSignal?' (2 reveals/round)':''}</span>
+      <div class="cap-line">Starting Free Cash: ${fmtUSD(r.maxUSD)}</div>`;
+    card.onclick=()=>{
+      document.querySelectorAll('.role-card').forEach(c=>c.classList.remove('selected'));
+      card.classList.add('selected');
+      pendingRoleKey=r.key;
+      $('rolesNextBtn').disabled=false;
+    };
+    grid.appendChild(card);
+  });
+}
+renderRoles();
+
+$('splashStartBtn').onclick=()=>{ $('topbar').style.display='flex'; $('roundTag').textContent='Choose role'; showStage('stage-roles'); };
+$('rolesNextBtn').onclick=()=>{
+  const role = ROLES[pendingRoleKey];
+  state = newState(role);
+  renderConfirm(role);
+  showStage('stage-confirm');
+};
+
+function renderConfirm(role){
+  $('roundTag').textContent='Role confirmed';
+  const card=$('confirmCard');
+  card.innerHTML=`
+    <h1>${role.name}</h1>
+    <div class="tag">Role confirmed. Review your starting position before entering Round 1.</div>
+    <div class="final-stats">
+      <div class="final-stat"><div class="flabel">Starting Free Cash</div><div class="fval">${fmtUSD(state.freeCash)}</div></div>
+      <div class="final-stat"><div class="flabel">Max JPY Principal</div><div class="fval">${fmtJPY(role.maxJPY)}</div></div>
+      <div class="final-stat"><div class="flabel">Max USD Equivalent</div><div class="fval">${fmtUSD(role.maxUSD)}</div></div>
+      <div class="final-stat"><div class="flabel">Information cost / reveal</div><div class="fval">${fmtUSD(role.infoCost)}</div></div>
+    </div>
+    <p>You will play 4 rounds. Each round you can review and repay JPY loans, sell or withdraw assets, borrow fresh JPY against your role's cap, and buy US Tech, S&amp;P 500, or deposit to US Cash. After Round 4, everything is auto-settled at the final market rate.</p>
+    <button class="big-btn" id="confirmNextBtn">Begin Phase III</button>
+  `;
+  $('confirmNextBtn').onclick=()=>{ renderBriefing(0); showStage('stage-briefing'); };
+}
+
+/* ---------------- ROUND BRIEFING ---------------- */
+function renderBriefing(idx){
+  const r=ROUNDS[idx];
+  $('roundTag').textContent=r.label;
+  updateTopMetrics();
+  const card=$('briefingCard');
+  card.innerHTML=`
+    <h1>${r.label}</h1>
+    <div class="tag">Round briefing — ${r.months} months elapse this round.</div>
+    <p>${r.narration}</p>
+    <div class="final-stats">
+      <div class="final-stat"><div class="flabel">USDJPY spot</div><div class="fval">${r.usdjpy.toFixed(2)}</div></div>
+      <div class="final-stat"><div class="flabel">BOJ funding rate (annual)</div><div class="fval">${(r.bojRate*100).toFixed(2)}%</div></div>
+      <div class="final-stat"><div class="flabel">US Tech price</div><div class="fval">${fmtUSD(r.techPrice)}</div></div>
+      <div class="final-stat"><div class="flabel">S&amp;P 500 price</div><div class="fval">${fmtUSD(r.spPrice)}</div></div>
+    </div>
+    <button class="big-btn" id="briefingNextBtn">Proceed to market</button>
+  `;
+  $('briefingNextBtn').onclick=()=>{ startRound(idx); showStage('stage-round'); };
+}
+
+/* ---------------- ROUND PLAY ---------------- */
+function startRound(idx){
+  state.roundIndex=idx;
+  state.infoRevealedThisRound=0;
+  state.infoMaxThisRound = state.role.extraSignal ? 2 : 1;
+  state.revealedIdxThisRound=new Set();
+  state.roundLog=[];
+
+  const r=ROUNDS[idx];
+  $('roundTag').textContent=r.label;
+  $('narrationText').textContent=r.narration;
+
+  $('macroGrid').innerHTML=`
+    <div class="macro-cell"><div class="mlabel">USDJPY</div><div class="mval">${r.usdjpy.toFixed(2)}</div></div>
+    <div class="macro-cell"><div class="mlabel">BOJ rate (ann.)</div><div class="mval">${(r.bojRate*100).toFixed(2)}%</div></div>
+    <div class="macro-cell"><div class="mlabel">US Tech</div><div class="mval">${fmtUSD(r.techPrice)}</div></div>
+    <div class="macro-cell"><div class="mlabel">S&amp;P 500</div><div class="mval">${fmtUSD(r.spPrice)}</div></div>
+  `;
+
+  const indWrap=$('indicatorsWrap'); indWrap.innerHTML='';
+  Object.entries(r.indicators).forEach(([k,v])=>{
+    const row=document.createElement('div');
+    row.innerHTML=`<div class="indicator-label"><span class="iname">${IND_LABELS[k]}</span><span>${v}/100</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${v}%"></div></div>`;
+    indWrap.appendChild(row);
+  });
+
+  document.getElementById('coinSvg').classList.remove('wilted');
+
+  renderNews(r);
+  renderLoans();
+  renderSellWithdraw();
+  renderRepay();
+  renderBorrow();
+  renderBuyDeposit();
+  renderDecisionLog();
+  updatePortfolioBar();
+  updateTopMetrics();
+
+  $('lockInBtn').onclick=()=>lockInRound();
+}
+
+function currentRound(){ return ROUNDS[state.roundIndex]; }
+
+function visibleNews(r){
+  return r.news.filter(n => !n.hunterOnly || state.role.extraSignal);
+}
+
+function renderNews(r){
+  const newsList=$('newsList'); newsList.innerHTML='';
+  const items = visibleNews(r);
+  state.totalInfoRevealsAvailable += state.infoMaxThisRound;
+  items.forEach((n,i)=>{
+    const li=document.createElement('li'); li.className='news-item';
+    li.dataset.idx=i;
+    newsList.appendChild(li);
+  });
+  refreshNewsUI(r, items);
+}
+function refreshNewsUI(r, items){
+  document.querySelectorAll('#newsList .news-item').forEach((li,i)=>{
+    const n=items[i];
+    const revealed = state.revealedIdxThisRound.has(i);
+    let badge;
+    if(revealed){
+      badge = n.truth!==null ? `<div class="truth-badge">${n.truth}% likely true</div>` : `<div class="truth-locked">No verified rating — pure rumor</div>`;
+    } else if(state.infoRevealedThisRound >= state.infoMaxThisRound){
+      badge = `<div class="truth-locked">Reliability not purchased this round</div>`;
+    } else {
+      badge = `<button class="reveal-btn" data-idx="${i}">Reveal reliability — ${fmtUSD(state.role.infoCost)}</button>`;
+    }
+    li.innerHTML = `${n.text}${badge}`;
+  });
+  document.querySelectorAll('.reveal-btn').forEach(btn=>{
+    btn.onclick=()=>{
+      const idx=+btn.dataset.idx;
+      const cost=state.role.infoCost;
+      if(state.freeCash<cost){ toast('Not enough Free Cash for information.'); state.invalidAttempts++; return; }
+      if(state.infoRevealedThisRound>=state.infoMaxThisRound){ toast('No reveals left this round.'); return; }
+      state.freeCash-=cost;
+      state.totalInfoCost+=cost;
+      state.infoRevealedThisRound++;
+      state.totalInfoRevealsUsed++;
+      state.revealedIdxThisRound.add(idx);
+      state.roundLog.push(`Paid ${fmtUSD(cost)} to reveal news reliability.`);
+      refreshNewsUI(r, items);
+      updatePortfolioBar(); updateTopMetrics(); renderDecisionLog();
+      renderSellWithdraw(); renderRepay(); renderBorrow(); renderBuyDeposit();
+    };
+  });
+  $('newsCapNote').textContent = state.infoRevealedThisRound>=state.infoMaxThisRound
+    ? "You've used all information reveals for this round."
+    : `You may reveal ${state.infoMaxThisRound - state.infoRevealedThisRound} more piece(s) of information this round.`;
+}
+
+function renderLoans(){
+  const wrap=$('loanList');
+  if(state.loans.length===0){
+    wrap.innerHTML=`<div class="loan-empty">No open JPY loans.</div>`;
+    return;
+  }
+  const r=currentRound();
+  wrap.innerHTML='';
+  state.loans.forEach(l=>{
+    const {totalJPYDue, usdRequired} = Finance.repaymentQuote(l, r.usdjpy);
+    const row=document.createElement('div'); row.className='loan-row';
+    row.innerHTML=`
+      <span class="loan-id">#${l.id}</span>
+      <span class="mono">Opened R${l.openRound+1} · Principal ${fmtJPY(l.principal)} · Interest ${fmtJPY(l.accruedInterest)}</span>
+      <span class="mono">Due: ${fmtJPY(totalJPYDue)}</span>
+      <span class="mono">≈ ${fmtUSD(usdRequired)}</span>
+      <span></span>`;
+    wrap.appendChild(row);
+  });
+}
+
+function renderSellWithdraw(){
+  const r=currentRound();
+  const wrap=$('sellWithdrawArea');
+  wrap.innerHTML=`
+    <div class="asset-row">
+      <div><div class="asset-name">US Tech</div><div class="asset-sub">${state.holdings.tech} units @ ${fmtUSD(r.techPrice)}</div></div>
+      <div class="asset-sub">Value: ${fmtUSD(state.holdings.tech*r.techPrice)}</div>
+      <input type="number" min="0" step="1" class="qty-input" id="sellTechQty" placeholder="qty">
+      <button class="mini-btn sell" id="sellTechBtn">Sell</button>
+      <span></span><span></span>
+    </div>
+    <div class="asset-row">
+      <div><div class="asset-name">S&amp;P 500</div><div class="asset-sub">${state.holdings.sp} units @ ${fmtUSD(r.spPrice)}</div></div>
+      <div class="asset-sub">Value: ${fmtUSD(state.holdings.sp*r.spPrice)}</div>
+      <input type="number" min="0" step="1" class="qty-input" id="sellSPQty" placeholder="qty">
+      <button class="mini-btn sell" id="sellSPBtn">Sell</button>
+      <span></span><span></span>
+    </div>
+    <div class="asset-row">
+      <div><div class="asset-name">US Cash</div><div class="asset-sub">Balance: ${fmtUSD(state.usCashBalance)}</div></div>
+      <div class="asset-sub">Earns ${(r.usCashReturn*100).toFixed(1)}% this round</div>
+      <input type="number" min="0" step="1" class="qty-input" id="withdrawQty" placeholder="amt">
+      <button class="mini-btn sell" id="withdrawBtn">Withdraw</button>
+      <span></span><span></span>
+    </div>
+  `;
+  $('sellTechBtn').onclick=()=>doSell('tech');
+  $('sellSPBtn').onclick=()=>doSell('sp');
+  $('withdrawBtn').onclick=()=>doWithdraw();
+}
+
+function doSell(asset){
+  const r=currentRound();
+  const input=$(asset==='tech'?'sellTechQty':'sellSPQty');
+  const qty=Number(input.value);
+  if(!Number.isFinite(qty) || qty<=0){ toast('Enter a valid quantity.'); return; }
+  const holdingQty = state.holdings[asset];
+  if(qty>holdingQty){ toast('Cannot sell more than you hold.'); state.invalidAttempts++; return; }
+  const price = asset==='tech'?r.techPrice:r.spPrice;
+  const proceeds = Finance.sellProceeds(qty, price);
+  state.holdings[asset]-=qty;
+  state.freeCash+=proceeds;
+  if(asset==='tech') state.totalTechSellProceeds+=proceeds; else state.totalSPSellProceeds+=proceeds;
+  state.roundLog.push(`Sold ${qty} ${ASSET_LABELS[asset]} @ ${fmtUSD(price)} = ${fmtUSD(proceeds)}`);
+  state.roundsWithAction = state.roundsWithAction; // no-op marker, incremented on lock-in
+  refreshAllPanels();
+  toast(`Sold ${qty} ${ASSET_LABELS[asset]}.`);
+}
+
+function doWithdraw(){
+  const amt=Number($('withdrawQty').value);
+  if(!Number.isFinite(amt) || amt<=0){ toast('Enter a valid amount.'); return; }
+  if(amt>state.usCashBalance){ toast('Cannot withdraw more than your US Cash balance.'); state.invalidAttempts++; return; }
+  state.usCashBalance-=amt;
+  state.freeCash+=amt;
+  state.roundLog.push(`Withdrew ${fmtUSD(amt)} from US Cash.`);
+  refreshAllPanels();
+  toast(`Withdrew ${fmtUSD(amt)} from US Cash.`);
+}
+
+function renderRepay(){
+  const r=currentRound();
+  const wrap=$('repayArea');
+  if(state.loans.length===0){
+    wrap.innerHTML=`<div class="loan-empty">No loans to repay.</div>`;
+    return;
+  }
+  wrap.innerHTML='';
+  state.loans.forEach(l=>{
+    const {totalJPYDue, usdRequired} = Finance.repaymentQuote(l, r.usdjpy);
+    const canRepay = state.freeCash >= usdRequired;
+    const row=document.createElement('div'); row.className='loan-row';
+    row.innerHTML=`
+      <span class="loan-id">#${l.id}</span>
+      <span class="mono">Total due ${fmtJPY(totalJPYDue)} ≈ ${fmtUSD(usdRequired)}</span>
+      <span class="mono">${canRepay?'Sufficient cash':'Insufficient cash'}</span>
+      <button class="mini-btn" ${canRepay?'':'disabled'} data-id="${l.id}">Repay in full</button>
+      <span></span>`;
+    row.querySelector('button').onclick=()=>doRepay(l.id);
+    wrap.appendChild(row);
+  });
+}
+
+function doRepay(loanId){
+  const r=currentRound();
+  const idx=state.loans.findIndex(l=>l.id===loanId);
+  if(idx===-1) return;
+  const l=state.loans[idx];
+  const {totalJPYDue, usdRequired} = Finance.repaymentQuote(l, r.usdjpy);
+  if(state.freeCash < usdRequired){ toast('Insufficient Free Cash to repay in full.'); state.invalidAttempts++; return; }
+  const metrics = Finance.closeLoanMetrics(l, r.usdjpy);
+  state.freeCash -= usdRequired;
+  state.closedLoans.push({...l, closedRound:state.roundIndex, usdjpyAtClose:r.usdjpy, ...metrics});
+  state.loans.splice(idx,1);
+  state.roundLog.push(`Repaid loan #${l.id} in full: ${fmtJPY(totalJPYDue)} ≈ ${fmtUSD(usdRequired)}`);
+  refreshAllPanels();
+  toast(`Loan #${l.id} repaid in full.`);
+}
+
+let borrowPctSelected=0;
+function renderBorrow(){
+  const r=currentRound();
+  const wrap=$('borrowArea');
+  const steps=[0,0.25,0.5,0.75,1.0];
+  const btnRow=document.createElement('div'); btnRow.className='borrow-row';
+  steps.forEach(pct=>{
+    const b=document.createElement('button');
+    b.className='borrow-btn'+(borrowPctSelected===pct?' selected':'');
+    b.textContent=(pct*100)+'%';
+    b.onclick=()=>{ borrowPctSelected=pct; renderBorrow(); };
+    btnRow.appendChild(b);
+  });
+  const q = Finance.quoteBorrow(borrowPctSelected, state.role, r.usdjpy, state.loans);
+  const summary=document.createElement('div'); summary.className='borrow-summary';
+  summary.innerHTML=`
+    Requested: ${fmtJPY(q.requested)}<br>
+    Remaining capacity: ${fmtJPY(q.remaining)}<br>
+    Would be accepted: ${fmtJPY(q.accepted)} → credited ${fmtUSD(q.borrowedUSD)} to Free Cash
+  `;
+  const btn=document.createElement('button'); btn.className='confirm-btn'; btn.textContent='Confirm borrow';
+  btn.disabled = q.accepted<=0;
+  btn.onclick=()=>doBorrow();
+  wrap.innerHTML=''; wrap.appendChild(btnRow); wrap.appendChild(summary); wrap.appendChild(btn);
+}
+
+function doBorrow(){
+  const r=currentRound();
+  const q = Finance.quoteBorrow(borrowPctSelected, state.role, r.usdjpy, state.loans);
+  if(q.accepted<=0){ toast('No borrowing capacity available at this percentage.'); return; }
+  const loan = { id:state.nextLoanId++, openRound:state.roundIndex, principal:q.accepted, accruedInterest:0, usdjpyAtOpen:r.usdjpy };
+  state.loans.push(loan);
+  state.freeCash += q.borrowedUSD;
+  state.roundLog.push(`Borrowed ${fmtJPY(q.accepted)} (loan #${loan.id}) → +${fmtUSD(q.borrowedUSD)} Free Cash`);
+  borrowPctSelected=0;
+  refreshAllPanels();
+  toast(`Borrowed ${fmtJPY(q.accepted)}.`);
+}
+
+function renderBuyDeposit(){
+  const r=currentRound();
+  const wrap=$('buyDepositArea');
+  wrap.innerHTML=`
+    <div class="asset-row">
+      <div><div class="asset-name">US Tech</div><div class="asset-sub">Price ${fmtUSD(r.techPrice)}</div></div>
+      <div class="asset-sub">Held: ${state.holdings.tech}</div>
+      <input type="number" min="0" step="1" class="qty-input" id="buyTechQty" placeholder="qty">
+      <button class="mini-btn buy" id="buyTechBtn">Buy</button>
+      <span></span><span></span>
+    </div>
+    <div class="asset-row">
+      <div><div class="asset-name">S&amp;P 500</div><div class="asset-sub">Price ${fmtUSD(r.spPrice)}</div></div>
+      <div class="asset-sub">Held: ${state.holdings.sp}</div>
+      <input type="number" min="0" step="1" class="qty-input" id="buySPQty" placeholder="qty">
+      <button class="mini-btn buy" id="buySPBtn">Buy</button>
+      <span></span><span></span>
+    </div>
+    <div class="asset-row">
+      <div><div class="asset-name">US Cash</div><div class="asset-sub">Balance ${fmtUSD(state.usCashBalance)}</div></div>
+      <div class="asset-sub">Earns ${(r.usCashReturn*100).toFixed(1)}% this round</div>
+      <input type="number" min="0" step="1" class="qty-input" id="depositQty" placeholder="amt">
+      <button class="mini-btn buy" id="depositBtn">Deposit</button>
+      <span></span><span></span>
+    </div>
+    <div class="section-hint" style="margin-top:8px;">Free Cash available now: <strong class="mono">${fmtUSD(state.freeCash)}</strong>. Holding a position with no action taken is always allowed.</div>
+  `;
+  $('buyTechBtn').onclick=()=>doBuy('tech');
+  $('buySPBtn').onclick=()=>doBuy('sp');
+  $('depositBtn').onclick=()=>doDeposit();
+}
+
+function doBuy(asset){
+  const r=currentRound();
+  const input=$(asset==='tech'?'buyTechQty':'buySPQty');
+  const qty=Number(input.value);
+  if(!Number.isFinite(qty) || qty<=0){ toast('Enter a valid quantity.'); return; }
+  const price = asset==='tech'?r.techPrice:r.spPrice;
+  const cost = Finance.buyCost(qty, price);
+  if(cost>state.freeCash){ toast('Purchase cost exceeds Free Cash.'); state.invalidAttempts++; return; }
+  state.freeCash-=cost;
+  state.holdings[asset]+=qty;
+  if(asset==='tech') state.totalTechBuyCost+=cost; else state.totalSPBuyCost+=cost;
+  state.roundLog.push(`Bought ${qty} ${ASSET_LABELS[asset]} @ ${fmtUSD(price)} = ${fmtUSD(cost)}`);
+  refreshAllPanels();
+  toast(`Bought ${qty} ${ASSET_LABELS[asset]}.`);
+}
+
+function doDeposit(){
+  const amt=Number($('depositQty').value);
+  if(!Number.isFinite(amt) || amt<=0){ toast('Enter a valid amount.'); return; }
+  if(amt>state.freeCash){ toast('Deposit exceeds Free Cash.'); state.invalidAttempts++; return; }
+  state.freeCash-=amt;
+  state.usCashBalance+=amt;
+  state.roundLog.push(`Deposited ${fmtUSD(amt)} into US Cash.`);
+  refreshAllPanels();
+  toast(`Deposited ${fmtUSD(amt)} into US Cash.`);
+}
+
+function renderDecisionLog(){
+  const log=$('decisionLog');
+  if(state.roundLog.length===0){
+    log.className='decision-log empty';
+    log.innerHTML='No actions taken yet this round.';
+    return;
+  }
+  log.className='decision-log';
+  log.innerHTML = state.roundLog.map(l=>`<li>${l}</li>`).join('');
+}
+
+function refreshAllPanels(){
+  renderLoans();
+  renderSellWithdraw();
+  renderRepay();
+  renderBorrow();
+  renderBuyDeposit();
+  renderDecisionLog();
+  updatePortfolioBar();
+  updateTopMetrics();
+}
+
+function updatePortfolioBar(){
+  const r=currentRound();
+  const gross = Finance.grossPortfolioValue(state.freeCash, state.holdings.tech, r.techPrice, state.holdings.sp, r.spPrice, state.usCashBalance);
+  $('portfolioBar').innerHTML=`
+    <div class="pcard"><div class="plabel">Free Cash</div><div class="pval">${fmtUSD(state.freeCash)}</div></div>
+    <div class="pcard"><div class="plabel">US Tech / S&amp;P Value</div><div class="pval">${fmtUSD(state.holdings.tech*r.techPrice)} / ${fmtUSD(state.holdings.sp*r.spPrice)}</div></div>
+    <div class="pcard"><div class="plabel">US Cash Balance</div><div class="pval">${fmtUSD(state.usCashBalance)}</div></div>
+    <div class="pcard debt"><div class="plabel">Gross Portfolio Value</div><div class="pval">${fmtUSD(gross)}</div></div>
+  `;
+}
+
+function updateTopMetrics(){
+  const r = state && ROUNDS[state.roundIndex] ? ROUNDS[state.roundIndex] : ROUNDS[0];
+  if(!state){ $('topMetrics').innerHTML=''; return; }
+  const gross = Finance.grossPortfolioValue(state.freeCash, state.holdings.tech, r.techPrice, state.holdings.sp, r.spPrice, state.usCashBalance);
+  const principal = Finance.outstandingPrincipal(state.loans);
+  const debtUSD = Finance.usdDebtMTM(state.loans, r.usdjpy);
+  const nw = Finance.netWealth(gross, debtUSD);
+  const status = Finance.status(nw, state.bankrupt);
+  $('topMetrics').innerHTML=`
+    <div class="tm"><span class="tlabel">Gross Portfolio</span><span class="tval">${fmtUSD(gross)}</span></div>
+    <div class="tm"><span class="tlabel">Free Cash</span><span class="tval">${fmtUSD(state.freeCash)}</span></div>
+    <div class="tm"><span class="tlabel">JPY Principal</span><span class="tval">${fmtJPY(principal)}</span></div>
+    <div class="tm"><span class="tlabel">Debt (USD)</span><span class="tval neg">${fmtUSD(debtUSD)}</span></div>
+    <div class="tm"><span class="tlabel">Net Wealth</span><span class="tval ${nw>=0?'pos':'neg'}">${fmtUSD(nw)}</span></div>
+    <div class="tm"><span class="tlabel">Status</span><span class="status-pill ${status}">${status.replace('_',' ')}</span></div>
+  `;
+}
+
+/* ---------------- MARKET CLOSE / LOCK-IN ---------------- */
+function lockInRound(){
+  const r=currentRound();
+  if(state.roundLog.length>0) state.roundsWithAction++;
+
+  // accrue interest on all open loans using this round's BOJ rate & months
+  state.loans.forEach(l=>{
+    const interest = Finance.accrueLoanInterest(l, r.bojRate, r.months);
+    l.accruedInterest += interest;
+  });
+
+  // US Cash earns its round return (Free Cash earns 0%)
+  const interestEarned = state.usCashBalance * r.usCashReturn;
+  state.usCashBalance += interestEarned;
+  state.totalUSCashInterest += interestEarned;
+
+  const gross = Finance.grossPortfolioValue(state.freeCash, state.holdings.tech, r.techPrice, state.holdings.sp, r.spPrice, state.usCashBalance);
+  const debtMTM = Finance.usdDebtMTM(state.loans, r.usdjpy);
+  const netWealthVal = Finance.netWealth(gross, debtMTM);
+  const status = Finance.status(netWealthVal, false);
+
+  const snapshot = {
+    round: state.roundIndex, gross, debtMTM, netWealth: netWealthVal, status,
+    usCashInterest: interestEarned,
+    riskAssetShare: gross>0 ? (state.holdings.tech*r.techPrice + state.holdings.sp*r.spPrice)/gross : 0,
+    liquidityRatio: gross>0 ? (state.freeCash + state.usCashBalance)/gross : 0,
+    debtUtilization: Finance.effectiveMaxJPY(state.role, r.usdjpy)>0 ? Finance.outstandingPrincipal(state.loans)/Finance.effectiveMaxJPY(state.role, r.usdjpy) : 0,
+    actionsThisRound: [...state.roundLog]
+  };
+  state.perRoundSnapshots.push(snapshot);
+
+  renderRoundDebrief(r, snapshot);
+  showStage('stage-debrief');
+}
+
+function renderRoundDebrief(r, snap){
+  const feedback=[];
+  if(snap.actionsThisRound.length===0){
+    feedback.push("You held this round — no trades, no borrowing, no repayment.");
+  } else {
+    feedback.push(`You logged ${snap.actionsThisRound.length} action(s) this round.`);
+  }
+  if(snap.debtUtilization>0){
+    feedback.push(`JPY principal utilization stood at ${(snap.debtUtilization*100).toFixed(0)}% of your effective cap at round close.`);
+  }
+  if(snap.riskAssetShare>0){
+    feedback.push(`Risk assets (US Tech + S&amp;P 500) made up ${(snap.riskAssetShare*100).toFixed(0)}% of your Gross Portfolio Value.`);
+  }
+  if(snap.usCashInterest>0){
+    feedback.push(`US Cash earned ${fmtUSD(snap.usCashInterest)} this round.`);
+  }
+  feedback.push(`Net Wealth at market close: ${fmtUSD(snap.netWealth)} (${snap.status.replace('_',' ')}).`);
+
+  const isLastRound = state.roundIndex >= ROUNDS.length-1;
+  const card=$('debriefCard');
+  card.innerHTML=`
+    <h1>${r.label} — Market Close</h1>
+    <div class="tag">Speculation ${r.indicators.speculation} · Liquidity ${r.indicators.liquidity} · Confidence ${r.indicators.confidence}</div>
+    <div class="debrief-block"><h4>Your round</h4><ul class="feedback-list">${feedback.map(f=>`<li>${f}</li>`).join('')}</ul></div>
+    <div class="final-stats">
+      <div class="final-stat"><div class="flabel">Gross Portfolio Value</div><div class="fval">${fmtUSD(snap.gross)}</div></div>
+      <div class="final-stat"><div class="flabel">USD Debt (MTM)</div><div class="fval neg">${fmtUSD(snap.debtMTM)}</div></div>
+      <div class="final-stat"><div class="flabel">Net Wealth</div><div class="fval ${snap.netWealth>=0?'pos':'neg'}">${fmtUSD(snap.netWealth)}</div></div>
+      <div class="final-stat"><div class="flabel">Status</div><div class="fval"><span class="status-pill ${snap.status}">${snap.status.replace('_',' ')}</span></div></div>
+    </div>
+    <button class="big-btn" id="debriefContinueBtn">${isLastRound ? 'Proceed to End Phase Settlement' : 'Continue to next round'}</button>
+  `;
+  $('debriefContinueBtn').onclick=()=>{
+    if(isLastRound){ runSettlement(); showStage('stage-settlement'); }
+    else { renderBriefing(state.roundIndex+1); showStage('stage-briefing'); }
+  };
+}
+
+/* ---------------- END PHASE SETTLEMENT ---------------- */
+function runSettlement(){
+  const r = ROUNDS[ROUNDS.length-1]; // final round's closing prices/rate used for settlement
+  const log=[];
+
+  // 1. Auto-sell all assets
+  if(state.holdings.tech>0){
+    const proceeds = state.holdings.tech * r.techPrice;
+    state.totalTechSellProceeds += proceeds;
+    state.freeCash += proceeds;
+    log.push(`Auto-sold ${state.holdings.tech} US Tech @ ${fmtUSD(r.techPrice)} = ${fmtUSD(proceeds)}`);
+    state.holdings.tech = 0;
+  }
+  if(state.holdings.sp>0){
+    const proceeds = state.holdings.sp * r.spPrice;
+    state.totalSPSellProceeds += proceeds;
+    state.freeCash += proceeds;
+    log.push(`Auto-sold ${state.holdings.sp} S&P 500 @ ${fmtUSD(r.spPrice)} = ${fmtUSD(proceeds)}`);
+    state.holdings.sp = 0;
+  }
+  // 2. Auto-withdraw US Cash
+  if(state.usCashBalance>0){
+    log.push(`Auto-withdrew ${fmtUSD(state.usCashBalance)} from US Cash.`);
+    state.freeCash += state.usCashBalance;
+    state.usCashBalance = 0;
+  }
+
+  const availableLiquidity = state.freeCash;
+
+  // 3. Settle all remaining JPY debt at final rate
+  const finalDebtJPY = Finance.outstandingTotalDue(state.loans);
+  const finalDebtUSD = finalDebtJPY / r.usdjpy;
+
+  state.loans.forEach(l=>{
+    const metrics = Finance.closeLoanMetrics(l, r.usdjpy);
+    state.closedLoans.push({...l, closedRound:state.roundIndex, usdjpyAtClose:r.usdjpy, ...metrics});
+  });
+  const loanCountSettled = state.loans.length;
+  state.loans = [];
+
+  state.bankrupt = availableLiquidity < finalDebtUSD;
+  const finalUSDWealth = availableLiquidity - finalDebtUSD;
+  state.freeCash = finalUSDWealth; // debt paid (or defaulted) — remaining cash reflects settlement
+
+  state._settlement = { availableLiquidity, finalDebtJPY, finalDebtUSD, finalUSDWealth, log, loanCountSettled, usdjpy:r.usdjpy };
+
+  renderSettlement();
+}
+
+function renderSettlement(){
+  const s = state._settlement;
+  const card=$('settlementCard');
+  $('roundTag').textContent='End Phase Settlement';
+  card.innerHTML=`
+    <h1>End Phase Settlement</h1>
+    <div class="tag">All positions auto-liquidated. All JPY debt settled at the final USDJPY rate of ${s.usdjpy.toFixed(2)}.</div>
+    <div class="debrief-block"><h4>Liquidation log</h4><ul class="feedback-list">${s.log.length? s.log.map(l=>`<li>${l}</li>`).join('') : '<li>No open positions to liquidate.</li>'}</ul></div>
+    <div class="final-stats">
+      <div class="final-stat"><div class="flabel">Available Liquidity</div><div class="fval">${fmtUSD(s.availableLiquidity)}</div></div>
+      <div class="final-stat"><div class="flabel">Final USD Debt</div><div class="fval neg">${fmtUSD(s.finalDebtUSD)}</div></div>
+      <div class="final-stat"><div class="flabel">Loans settled</div><div class="fval">${s.loanCountSettled}</div></div>
+      <div class="final-stat"><div class="flabel">Final USD Wealth</div><div class="fval ${s.finalUSDWealth>=0?'pos':'neg'}">${fmtUSD(s.finalUSDWealth)}</div></div>
+    </div>
+    ${state.bankrupt ? `<div class="debrief-block" style="border-color:var(--tulip);background:#fbe5e3;"><h4 style="color:var(--tulip);">Bankrupt</h4><p>Available Liquidity was less than the Final USD Debt required. The phase ends with unpaid debt.</p></div>` : ''}
+    <button class="big-btn" id="settlementNextBtn">See final result</button>
+  `;
+  $('settlementNextBtn').onclick=()=>{ renderFinal(); showStage('stage-final'); };
+}
+
+/* ---------------- FINAL RESULT & SCORING ---------------- */
+function computeBreakdown(){
+  let totalFxPnL=0, totalInterestCost=0;
+  state.closedLoans.forEach(cl=>{
+    totalFxPnL += cl.fxPnL;
+    totalInterestCost += cl.interestCost;
+  });
+  const investmentPnL = (state.totalTechSellProceeds - state.totalTechBuyCost)
+                       + (state.totalSPSellProceeds - state.totalSPBuyCost)
+                       + state.totalUSCashInterest;
+  const fundingPnL = totalFxPnL - totalInterestCost;
+  const netPnL = investmentPnL + fundingPnL - state.totalInfoCost;
+  return { investmentPnL, fundingPnL, totalFxPnL, totalInterestCost, netPnL };
+}
+
+function computeScore(finalWealth, netPnL){
+  // Financial Performance (50 pts) — based on Net P&L return on Initial Player Wealth
+  const ret = netPnL / state.initialWealth;
+  const financial = clamp(25 + ret*50, 0, 50);
+
+  // Risk Management (30 pts): Liquidity, Debt Exposure, Position Risk (10 each)
+  const snaps = state.perRoundSnapshots;
+  const minLiquidity = snaps.length ? Math.min(...snaps.map(s=>s.liquidityRatio)) : 0;
+  const liquidityScore = clamp(minLiquidity*20, 0, 10);
+
+  const peakUtilLate = snaps.length>=3 ? Math.max(snaps[2].debtUtilization, snaps[snaps.length-1]?.debtUtilization||0) : (snaps.length?Math.max(...snaps.map(s=>s.debtUtilization)):0);
+  const debtExposureScore = clamp((1-peakUtilLate)*10, 0, 10);
+
+  const riskShareBeforeUnwind = snaps.length>=3 ? snaps[2].riskAssetShare : (snaps.length?snaps[snaps.length-1].riskAssetShare:0);
+  const positionRiskScore = clamp((1-riskShareBeforeUnwind)*10, 0, 10);
+
+  const risk = liquidityScore + debtExposureScore + positionRiskScore;
+
+  // Decision Quality (20 pts): Capital Efficiency, Debt Timing, Info Use, Action Discipline (5 each)
+  const avgDebtUtil = snaps.length ? snaps.reduce((s,x)=>s+x.debtUtilization,0)/snaps.length : 0;
+  const capitalEfficiency = clamp(avgDebtUtil*10, 0, 5); // used borrowed capacity productively rather than staying unlevered the whole game
+
+  const lastSnap = snaps[snaps.length-1];
+  const debtTiming = clamp((1-(lastSnap?lastSnap.debtUtilization:0))*5, 0, 5); // rewarded for de-risking debt into the unwind
+
+  const infoUseRatio = state.totalInfoRevealsAvailable>0 ? state.totalInfoRevealsUsed/state.totalInfoRevealsAvailable : 0;
+  const infoUse = clamp(infoUseRatio*5, 0, 5);
+
+  const actionDiscipline = clamp(5 - state.invalidAttempts*0.75, 0, 5);
+
+  const decision = capitalEfficiency + debtTiming + infoUse + actionDiscipline;
+
+  const total = clamp(financial + risk + decision, 0, 100);
+
+  return {
+    financial, liquidityScore, debtExposureScore, positionRiskScore, risk,
+    capitalEfficiency, debtTiming, infoUse, actionDiscipline, decision,
+    total
+  };
+}
+
+function renderFinal(){
+  document.getElementById('coinSvg')?.classList.add('wilted');
+  $('roundTag').textContent='Final Result';
+  const s=state._settlement;
+  const finalWealth = s.finalUSDWealth;
+  const netPnL = finalWealth - state.initialWealth;
+  const breakdown = computeBreakdown();
+  const score = computeScore(finalWealth, netPnL);
+  const status = Finance.status(finalWealth, state.bankrupt);
+
+  const card=$('finalCard');
+  card.innerHTML=`
+    <h1>${state.bankrupt ? 'Bankrupt' : 'Phase III Complete'}</h1>
+    <div class="tag">Role played: ${state.role.name} · Status: <span class="status-pill ${status}">${status.replace('_',' ')}</span></div>
+    <div class="final-stats">
+      <div class="final-stat"><div class="flabel">Initial Player Wealth</div><div class="fval">${fmtUSD(state.initialWealth)}</div></div>
+      <div class="final-stat"><div class="flabel">Final USD Wealth</div><div class="fval ${finalWealth>=0?'pos':'neg'}">${fmtUSD(finalWealth)}</div></div>
+      <div class="final-stat"><div class="flabel">Final Net P&amp;L</div><div class="fval ${netPnL>=0?'pos':'neg'}">${fmtUSD(netPnL)}</div></div>
+      <div class="final-stat"><div class="flabel">Net P&amp;L Return</div><div class="fval ${netPnL>=0?'pos':'neg'}">${((netPnL/state.initialWealth)*100).toFixed(1)}%</div></div>
+    </div>
+    <div class="debrief-block">
+      <h4>P&amp;L breakdown</h4>
+      <p class="mono" style="line-height:2;">
+        Investment P&amp;L (Tech + S&amp;P + US Cash interest): ${fmtUSD(breakdown.investmentPnL)}<br>
+        Funding P&amp;L (FX P&amp;L ${fmtUSD(breakdown.totalFxPnL)} − Interest cost ${fmtUSD(breakdown.totalInterestCost)}): ${fmtUSD(breakdown.fundingPnL)}<br>
+        Information cost: ${fmtUSD(-state.totalInfoCost)}<br>
+        <strong>Net P&amp;L: ${fmtUSD(breakdown.netPnL)}</strong>
+      </p>
+    </div>
+    <h2 class="panel-title" style="color:var(--tulip-dark);">Score breakdown</h2>
+    <div class="score-block">
+      ${scoreRow('Financial Performance', score.financial, 50)}
+      ${scoreRow('— Liquidity', score.liquidityScore, 10)}
+      ${scoreRow('— Debt Exposure', score.debtExposureScore, 10)}
+      ${scoreRow('— Position Risk', score.positionRiskScore, 10)}
+      ${scoreRow('— Capital Efficiency', score.capitalEfficiency, 5)}
+      ${scoreRow('— Debt Timing', score.debtTiming, 5)}
+      ${scoreRow('— Information Use', score.infoUse, 5)}
+      ${scoreRow('— Action Discipline', score.actionDiscipline, 5)}
+    </div>
+    <div class="score-total">${score.total.toFixed(0)} / 100</div>
+    <button class="big-btn" id="finalNextBtn">Read the debrief</button>
+  `;
+  $('finalNextBtn').onclick=()=>{ renderFullDebrief(breakdown, score); showStage('stage-fulldebrief'); };
+}
+
+function scoreRow(name, val, max){
+  const pct = clamp((val/max)*100,0,100);
+  return `<div class="score-row"><span class="sname">${name}</span><span class="sval">${val.toFixed(1)} / ${max}</span></div>
+    <div class="score-bar-track"><div class="score-bar-fill" style="width:${pct}%"></div></div>`;
+}
+
+/* ---------------- FULL DEBRIEF (no hindsight bias) ---------------- */
+function renderFullDebrief(breakdown, score){
+  $('roundTag').textContent='Debrief';
+  const lines=[];
+  state.perRoundSnapshots.forEach((snap,i)=>{
+    const r = ROUNDS[i];
+    const revealedCount = snap.actionsThisRound.filter(a=>a.startsWith('Paid')).length;
+    const parts=[];
+    parts.push(`Round ${i+1} closed with Net Wealth ${fmtUSD(snap.netWealth)} (${snap.status.replace('_',' ')}), JPY utilization ${(snap.debtUtilization*100).toFixed(0)}% and risk-asset share ${(snap.riskAssetShare*100).toFixed(0)}% of Gross Portfolio Value.`);
+    if(revealedCount>0) parts.push(`You paid for ${revealedCount} information reveal(s) — decisions that round could use that signal.`);
+    else parts.push(`You did not pay for information that round — decisions relied on headlines alone.`);
+    if(snap.actionsThisRound.length===0) parts.push(`No trades, borrowing, or repayment were made — a pure hold.`);
+    lines.push(`<li>${parts.join(' ')}</li>`);
+  });
+
+  const card=$('fullDebriefCard');
+  card.innerHTML=`
+    <h1>Debrief — ${state.role.name}</h1>
+    <div class="tag">Evaluated only on information available at the time each decision was made.</div>
+    <div class="debrief-block">
+      <h4>Round-by-round record</h4>
+      <ul class="feedback-list">${lines.join('')}</ul>
+    </div>
+    <div class="debrief-block">
+      <h4>Economic lesson</h4>
+      <p>The JPY carry trade profits from a stable, positive spread between the funding currency's near-zero rate and the returns on the assets it buys. That profit is not free: it is compensation for two risks that stayed hidden while the trade worked — the yen could strengthen and erase the FX gain on repayment, and the funded assets could fall in value at the same time credit conditions tighten. Both risks materialized together in Round 4, which is why leveraged carry trades unwind fast and all at once rather than fading slowly. Managing this trade means limiting JPY principal relative to your cap before the unwind and keeping enough liquid Free Cash and US Cash to repay debt without being forced to sell risk assets into a falling market.</p>
+    </div>
+    <div class="debrief-block">
+      <h4>Final score</h4>
+      <p>${score.total.toFixed(0)} / 100 — Financial Performance ${score.financial.toFixed(1)}/50, Risk Management ${score.risk.toFixed(1)}/30, Decision Quality ${score.decision.toFixed(1)}/20.</p>
+    </div>
+    <p style="font-family:var(--sub-font);font-size:0.8rem;color:#6b5a3a;">Phase III complete.</p>
+  `;
+}
+</script>
+</body>
+</html>
