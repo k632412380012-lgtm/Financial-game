@@ -62,8 +62,6 @@
   .roundtimer{font-family:var(--sub-font);font-size:1rem;font-weight:700;color:var(--cream);background:rgba(184,52,46,0.18);border:1px solid rgba(184,52,46,0.55);padding:4px 12px;border-radius:3px;min-width:64px;text-align:center;}
   .roundtimer.low{background:rgba(184,52,46,0.55);animation:timerPulse 1s infinite;}
   @keyframes timerPulse{0%,100%{opacity:1;}50%{opacity:0.55;}}
-  .music-btn{font-family:var(--sub-font);font-size:0.76rem;font-weight:600;color:var(--gold-light);background:transparent;border:1px solid rgba(228,200,120,0.4);border-radius:20px;padding:6px 12px;cursor:pointer;}
-  .music-btn:hover{background:rgba(228,200,120,0.1);}
 
   /* Persistent background fx (visible behind every stage) */
   .bg-fx{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;background:var(--navy);}
@@ -336,8 +334,6 @@
   <div class="mu-text">Updating markets…</div>
 </div>
 
-<div id="ytMusicContainer" style="position:absolute;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none;"></div>
-
 <div class="app">
 
   <div class="topbar" id="topbar" style="display:none;">
@@ -346,7 +342,6 @@
       <span class="sub">Phase III — The JPY Carry Trade</span>
     </div>
     <div class="status">
-      <button class="music-btn" id="musicToggleBtn">🔊 Music</button>
       <button class="howto-topbtn" id="topHowtoBtn">How to play</button>
       <div class="roundtimer" id="roundTimer" style="display:none;">5:00</div>
     </div>
@@ -627,76 +622,23 @@ const ROUND_SECONDS = 300; // 5 minutes per round
 // "Rainy day lofi" ambience: a filtered noise "rain" bed plus a soft, lowpass-muffled
 // chord pad. Fully synthesized in-browser (no external audio file / network dependency),
 // so it always plays regardless of network access and carries no licensing risk.
+// No background music — short synthesized sound effects only, entirely in-browser.
 const Audio1 = (function(){
-  let ctx=null, masterGain=null, sfxGain=null, ambientNodes=[], enabled=true, started=false;
+  let ctx=null, sfxGain=null;
   function ensureCtx(){
     if(!ctx){
       const AC = window.AudioContext || window.webkitAudioContext;
       if(!AC) return null;
       ctx = new AC();
-      masterGain = ctx.createGain();
-      masterGain.gain.value = enabled ? 0.16 : 0;
-      masterGain.connect(ctx.destination);
       sfxGain = ctx.createGain();
-      sfxGain.gain.value = 0.35;
+      sfxGain.gain.value = 0.3;
       sfxGain.connect(ctx.destination);
     }
     if(ctx.state==='suspended') ctx.resume();
     return ctx;
   }
-  function makeRainBuffer(){
-    const len = ctx.sampleRate*2;
-    const buf = ctx.createBuffer(1, len, ctx.sampleRate);
-    const data = buf.getChannelData(0);
-    let last=0;
-    for(let i=0;i<len;i++){
-      const white = Math.random()*2-1;
-      last = (last + 0.02*white) / 1.02; // brown-ish noise -> softer "rain" hiss than pure white noise
-      data[i] = last*3.5;
-    }
-    return buf;
-  }
-  function startAmbient(){
-    if(started || !ensureCtx()) return;
-    started=true;
-    // Rain layer
-    const noiseSrc = ctx.createBufferSource();
-    noiseSrc.buffer = makeRainBuffer();
-    noiseSrc.loop = true;
-    const rainFilter = ctx.createBiquadFilter();
-    rainFilter.type='bandpass'; rainFilter.frequency.value=1800; rainFilter.Q.value=0.7;
-    const rainGain = ctx.createGain();
-    rainGain.gain.value=0.05;
-    noiseSrc.connect(rainFilter); rainFilter.connect(rainGain); rainGain.connect(masterGain);
-    noiseSrc.start();
-    ambientNodes.push(noiseSrc);
-    // Soft lofi chord pad (lowpass-filtered for that muffled "lofi" warmth)
-    const freqs=[130.81,164.81,196.00]; // C3-E3-G3
-    freqs.forEach((f,i)=>{
-      const osc=ctx.createOscillator();
-      osc.type='sine'; osc.frequency.value=f;
-      const lp=ctx.createBiquadFilter();
-      lp.type='lowpass'; lp.frequency.value=900;
-      const g=ctx.createGain();
-      g.gain.value=0.05;
-      osc.connect(lp); lp.connect(g); g.connect(masterGain);
-      osc.start();
-      const lfo=ctx.createOscillator();
-      lfo.frequency.value=0.045+i*0.012;
-      const lfoGain=ctx.createGain();
-      lfoGain.gain.value=0.03;
-      lfo.connect(lfoGain); lfoGain.connect(g.gain);
-      lfo.start();
-      ambientNodes.push(osc,lfo);
-    });
-  }
-  function toggle(){
-    enabled=!enabled;
-    if(masterGain) masterGain.gain.value = enabled?0.16:0;
-    return enabled;
-  }
   function blip(freq, dur, type){
-    if(!ctx) return;
+    if(!ensureCtx()) return;
     const o=ctx.createOscillator(); const g=ctx.createGain();
     o.type=type||'triangle'; o.frequency.value=freq||660;
     o.connect(g); g.connect(sfxGain);
@@ -706,10 +648,17 @@ const Audio1 = (function(){
     g.gain.exponentialRampToValueAtTime(0.0001,t+(dur||0.16));
     o.start(t); o.stop(t+(dur||0.16)+0.03);
   }
+  function uiClick(){ blip(920,0.045,'triangle'); }
   function chime(){ blip(660,0.14); setTimeout(()=>blip(880,0.18),110); }
   function alarm(){ blip(220,0.22,'sawtooth'); setTimeout(()=>blip(180,0.28,'sawtooth'),160); }
-  return { ensureCtx, startAmbient, toggle, blip, chime, alarm, isEnabled:()=>enabled };
+  return { ensureCtx, blip, uiClick, chime, alarm };
 })();
+
+/* ---------------- CLICK SOUND ON EVERY BUTTON / SELECTABLE CARD ---------------- */
+document.addEventListener('click', (e)=>{
+  const el = e.target.closest('button, .role-card');
+  if(el && !el.disabled) Audio1.uiClick();
+}, true);
 
 /* ---------------- FINANCE ENGINE (pure functions) ---------------- */
 const Finance = {
@@ -831,56 +780,6 @@ $('guideCloseBtn').onclick=closeGuide;
 $('splashHowtoBtn').onclick=openGuide;
 $('topHowtoBtn').onclick=openGuide;
 
-/* ---------------- BACKGROUND MUSIC (YouTube embed, with synthesized fallback) ---------------- */
-const YT_VIDEO_ID = 'ecUJLxeRHv8';
-let ytPlayer = null, ytReady = false, ytFailed = false;
-
-function useFallbackAmbience(){
-  if(ytFailed) return; // already switched
-  ytFailed = true;
-  Audio1.ensureCtx();
-  Audio1.startAmbient();
-}
-
-function loadYouTubeMusic(){
-  if(ytReady || ytFailed) return;
-  if(window.YT && window.YT.Player){ createYtPlayer(); return; }
-  const tag = document.createElement('script');
-  tag.src = 'https://www.youtube.com/iframe_api';
-  tag.onerror = useFallbackAmbience;
-  document.head.appendChild(tag);
-  window.onYouTubeIframeAPIReady = createYtPlayer;
-  setTimeout(()=>{ if(!ytReady) useFallbackAmbience(); }, 4000);
-}
-function createYtPlayer(){
-  if(ytFailed) return;
-  try{
-    ytPlayer = new YT.Player('ytMusicContainer', {
-      height:'1', width:'1', videoId: YT_VIDEO_ID,
-      playerVars:{ autoplay:1, mute:0, loop:1, playlist:YT_VIDEO_ID, controls:0, modestbranding:1, rel:0, iv_load_policy:3, disablekb:1, fs:0 },
-      events:{
-        onReady:(e)=>{
-          ytReady = true;
-          e.target.setVolume(35);
-          e.target.playVideo();
-          $('musicToggleBtn').textContent = '🔊 Music';
-        },
-        onError: useFallbackAmbience
-      }
-    });
-  } catch(err){ useFallbackAmbience(); }
-}
-
-$('musicToggleBtn').onclick=()=>{
-  if(ytReady && ytPlayer){
-    if(ytPlayer.isMuted()){ ytPlayer.unMute(); $('musicToggleBtn').textContent='🔊 Music'; }
-    else { ytPlayer.mute(); $('musicToggleBtn').textContent='🔇 Music'; }
-  } else {
-    const on = Audio1.toggle();
-    $('musicToggleBtn').textContent = on ? '🔊 Music' : '🔇 Music';
-  }
-};
-
 /* ---------------- DECOR (splash) ---------------- */
 (function initPetals(){
   const field=$('petalField');
@@ -931,8 +830,7 @@ function renderRoles(){
 renderRoles();
 
 $('splashStartBtn').onclick=()=>{
-  Audio1.ensureCtx(); // unlocks the WebAudio context for SFX regardless of music source
-  loadYouTubeMusic();
+  Audio1.ensureCtx(); // unlocks the WebAudio context for click SFX
   $('topbar').style.display='flex'; $('roundTag').textContent='Choose role'; showStage('stage-roles');
 };
 $('rolesNextBtn').onclick=()=>{
