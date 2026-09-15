@@ -1033,7 +1033,8 @@ function refreshNewsUI(r, items){
 }
 
 
-function assetsAreaInnerHTML(r, buyLocked){
+function assetsAreaInnerHTML(r, buyLocked, sellLocked){
+  const sellTitle = sellLocked ? 'title="Confirm your Buy/Deposit decision first"' : '';
   return `
     <div class="trade-row">
       <div><div class="asset-name">US Tech</div><div class="asset-sub">Price ${fmtUSD(r.techPrice)} · Held: ${state.holdings.tech}</div></div>
@@ -1042,10 +1043,10 @@ function assetsAreaInnerHTML(r, buyLocked){
         <input type="number" min="0" step="1" class="qty-input" id="buyTechQty" placeholder="qty" ${buyLocked?'disabled':''}>
         <button class="mini-btn buy" id="buyTechBtn" ${buyLocked?'disabled':''}>Buy</button>
       </div>
-      <div class="trade-group">
+      <div class="trade-group" ${sellTitle}>
         <span class="trade-label">Sell</span>
-        <input type="number" min="0" step="1" class="qty-input" id="sellTechQty" placeholder="qty">
-        <button class="mini-btn sell" id="sellTechBtn">Sell</button>
+        <input type="number" min="0" step="1" class="qty-input" id="sellTechQty" placeholder="qty" ${sellLocked?'disabled':''}>
+        <button class="mini-btn sell" id="sellTechBtn" ${sellLocked?'disabled':''}>${sellLocked?'🔒':'Sell'}</button>
       </div>
     </div>
     <div class="trade-row">
@@ -1055,10 +1056,10 @@ function assetsAreaInnerHTML(r, buyLocked){
         <input type="number" min="0" step="1" class="qty-input" id="buySPQty" placeholder="qty" ${buyLocked?'disabled':''}>
         <button class="mini-btn buy" id="buySPBtn" ${buyLocked?'disabled':''}>Buy</button>
       </div>
-      <div class="trade-group">
+      <div class="trade-group" ${sellTitle}>
         <span class="trade-label">Sell</span>
-        <input type="number" min="0" step="1" class="qty-input" id="sellSPQty" placeholder="qty">
-        <button class="mini-btn sell" id="sellSPBtn">Sell</button>
+        <input type="number" min="0" step="1" class="qty-input" id="sellSPQty" placeholder="qty" ${sellLocked?'disabled':''}>
+        <button class="mini-btn sell" id="sellSPBtn" ${sellLocked?'disabled':''}>${sellLocked?'🔒':'Sell'}</button>
       </div>
     </div>
     <div class="trade-row">
@@ -1068,13 +1069,13 @@ function assetsAreaInnerHTML(r, buyLocked){
         <input type="number" min="0" step="1" class="qty-input" id="depositQty" placeholder="amt" ${buyLocked?'disabled':''}>
         <button class="mini-btn buy" id="depositBtn" ${buyLocked?'disabled':''}>Deposit</button>
       </div>
-      <div class="trade-group">
+      <div class="trade-group" ${sellTitle}>
         <span class="trade-label">Withdraw</span>
-        <input type="number" min="0" step="1" class="qty-input" id="withdrawQty" placeholder="amt">
-        <button class="mini-btn sell" id="withdrawBtn">Withdraw</button>
+        <input type="number" min="0" step="1" class="qty-input" id="withdrawQty" placeholder="amt" ${sellLocked?'disabled':''}>
+        <button class="mini-btn sell" id="withdrawBtn" ${sellLocked?'disabled':''}>${sellLocked?'🔒':'Withdraw'}</button>
       </div>
     </div>
-    <div class="section-hint" style="margin-top:8px;">Free Cash available now: <strong class="mono">${fmtUSD(state.freeCash)}</strong>.</div>
+    <div class="section-hint" style="margin-top:8px;">Free Cash available now: <strong class="mono">${fmtUSD(state.freeCash)}</strong>.${sellLocked?' Confirm your Buy/Deposit decision to unlock Sell, Withdraw, and Repay.':''}</div>
     ${buyLocked
       ? `<div class="section-hint" style="color:var(--green);font-weight:600;">✓ Buy/Deposit decision locked for this round.</div>`
       : `<button class="confirm-btn" id="confirmBuyBtn">Confirm buy/deposit decision (or Hold)</button>`}
@@ -1090,17 +1091,19 @@ function renderAssetsArea(){
   if(!borrowDecided){
     wrap.innerHTML = `
       <div class="gated">
-        <div class="gated-blur">${assetsAreaInnerHTML(r, true)}</div>
+        <div class="gated-blur">${assetsAreaInnerHTML(r, true, true)}</div>
         <div class="gated-overlay">Confirm your borrowing decision above to unlock trading.</div>
       </div>`;
     return;
   }
 
-  wrap.innerHTML = assetsAreaInnerHTML(r, buyDecided);
-  $('sellTechBtn').onclick=()=>doSell('tech');
-  $('sellSPBtn').onclick=()=>doSell('sp');
-  $('withdrawBtn').onclick=()=>doWithdraw();
-  if(buyDecided) return;
+  wrap.innerHTML = assetsAreaInnerHTML(r, buyDecided, !buyDecided);
+  if(buyDecided){
+    $('sellTechBtn').onclick=()=>doSell('tech');
+    $('sellSPBtn').onclick=()=>doSell('sp');
+    $('withdrawBtn').onclick=()=>doWithdraw();
+    return;
+  }
   $('buyTechBtn').onclick=()=>doBuy('tech');
   $('buySPBtn').onclick=()=>doBuy('sp');
   $('depositBtn').onclick=()=>doDeposit();
@@ -1110,7 +1113,7 @@ function renderAssetsArea(){
     }
     state.roundFlags.buyDecided = true;
     refreshAllPanels();
-    toast('Buy/Deposit decision locked.');
+    toast('Buy/Deposit decision locked — Sell, Withdraw, and Repay are now unlocked.');
   };
 }
 
@@ -1146,10 +1149,10 @@ function doWithdraw(){
 function renderRepayWrap(){
   const r=currentRound();
   const wrap=$('repayWrap');
-  const borrowDecided = state.roundFlags && state.roundFlags.borrowDecided;
-  if(!borrowDecided || state.loans.length===0){
-    const overlayMsg = !borrowDecided
-      ? 'Confirm your borrowing decision above to unlock this section.'
+  const buyDecided = state.roundFlags && state.roundFlags.buyDecided;
+  if(!buyDecided || state.loans.length===0){
+    const overlayMsg = !buyDecided
+      ? 'Confirm your Buy/Deposit decision above to unlock this section.'
       : 'No outstanding JPY loans this round — nothing to repay.';
     wrap.innerHTML=`
       <div class="gated">
