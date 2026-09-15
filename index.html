@@ -815,7 +815,6 @@ function renderRoles(){
     card.className='role-card'; card.dataset.role=r.key;
     card.innerHTML=`<h3>${r.name}</h3><p>${r.desc}</p>
       <span class="stat-line">Max lifetime JPY borrowing: ${fmtJPY(r.maxJPY)}</span>
-      <span class="stat-line">USD-equivalent cross-cap: ${fmtUSD(r.maxUSD)}</span>
       <span class="stat-line">Information cost: ${fmtUSD(r.infoCost)}${r.extraSignal?' (2 reveals/round)':''}</span>
       <div class="cap-line">Starting Free Cash: $0 — borrow JPY to fund your first trade</div>`;
     card.onclick=()=>{
