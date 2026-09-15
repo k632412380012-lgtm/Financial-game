@@ -174,12 +174,19 @@
   .section-title.sticky-header{position:sticky;top:-1px;background:var(--paper);z-index:6;padding:10px 0 8px;margin:-2px 0 8px;border-bottom:1px solid var(--line);}
   .section-title .stepnum{background:var(--tulip-dark);color:white;width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:0.68rem;flex-shrink:0;}
   .section-title .optional-tag{font-family:var(--sub-font);font-size:0.62rem;font-weight:600;text-transform:none;letter-spacing:0;color:#8a7a55;background:var(--cream);border:1px solid var(--line);border-radius:10px;padding:2px 8px;}
+  .section-title .required-tag{font-family:var(--sub-font);font-size:0.62rem;font-weight:600;text-transform:none;letter-spacing:0;color:white;background:var(--tulip-dark);border:1px solid var(--tulip-dark);border-radius:10px;padding:2px 8px;}
   .section-title .decision-check{font-size:0.9rem;color:var(--green);}
   .section-hint{font-family:var(--sub-font);font-size:0.72rem;color:#8a7a55;margin-bottom:10px;}
   .desk-pagetag{font-family:var(--sub-font);font-size:0.72rem;font-weight:700;color:var(--tulip-dark);text-transform:uppercase;letter-spacing:0.5px;margin:-4px 0 14px;}
-  .repay-locked{position:relative;}
-  .repay-locked .repay-blur-content{filter:blur(3px);opacity:0.5;pointer-events:none;user-select:none;}
-  .repay-locked .repay-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;font-family:var(--sub-font);font-size:0.85rem;color:#6b5a3a;font-weight:600;}
+  .gated{position:relative;}
+  .gated .gated-blur{filter:blur(3px);opacity:0.5;pointer-events:none;user-select:none;}
+  .gated .gated-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;font-family:var(--sub-font);font-size:0.85rem;color:#6b5a3a;font-weight:600;background:rgba(251,246,234,0.55);border-radius:4px;}
+
+  .trade-row{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);}
+  .trade-row:last-child{border-bottom:none;}
+  @media (max-width:640px){.trade-row{grid-template-columns:1fr;}}
+  .trade-group{display:flex;gap:6px;align-items:center;}
+  .trade-group .trade-label{font-family:var(--sub-font);font-size:0.7rem;font-weight:700;color:#6b5a3a;min-width:34px;}
 
   .asset-row{display:grid;grid-template-columns:1.3fr 0.8fr 0.9fr 0.9fr auto auto;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);}
   .asset-row:last-child{border-bottom:none;}
@@ -448,46 +455,31 @@
       <div class="desk">
         <h2 class="panel-title">Trading Desk</h2>
         <div class="portfolio-bar" id="portfolioBar"></div>
-        <div class="desk-pagetag" id="deskPageTag"></div>
 
-        <div id="deskPage1">
-          <div class="section-block">
-            <div class="section-title sticky-header"><span class="stepnum">1</span> Borrowing JPY <span class="decision-check" id="borrowCheck"></span></div>
-            <div class="section-hint">Choose a percentage of your Max JPY Principal to request this round, then confirm.</div>
-            <div id="borrowArea"></div>
-          </div>
-
-          <div class="section-block">
-            <div class="section-title sticky-header"><span class="stepnum">2</span> Buy / Deposit / Hold <span class="decision-check" id="buyCheck"></span></div>
-            <div class="section-hint">Deploy free cash into risk assets or park it in US Cash — or hold and confirm no action.</div>
-            <div id="buyDepositArea"></div>
-          </div>
-
-          <div class="actions-footer">
-            <button class="end-round-btn" id="toPage2Btn" disabled>Continue to Sell/Withdraw &amp; Repay</button>
-          </div>
+        <div class="section-block">
+          <div class="section-title sticky-header"><span class="stepnum">1</span> Borrowing JPY <span class="decision-check" id="borrowCheck"></span> <span class="required-tag">required</span></div>
+          <div class="section-hint">Choose a percentage of your role's borrowing cap, then confirm — this unlocks trading below.</div>
+          <div id="borrowArea"></div>
         </div>
 
-        <div id="deskPage2" style="display:none;">
-          <div class="section-block">
-            <div class="section-title sticky-header"><span class="stepnum">3</span> Sell / Withdraw <span class="optional-tag">optional</span></div>
-            <div class="section-hint">Free up cash if you want it. This section can be skipped entirely.</div>
-            <div id="sellWithdrawArea"></div>
-          </div>
+        <div class="section-block">
+          <div class="section-title sticky-header"><span class="stepnum">2</span> Buy / Sell / Deposit / Withdraw <span class="decision-check" id="buyCheck"></span> <span class="required-tag">buy required</span></div>
+          <div class="section-hint">Buying (or confirming a hold) is required each round. Selling and withdrawing are optional.</div>
+          <div id="assetsArea"></div>
+        </div>
 
-          <div class="section-block">
-            <div class="section-title sticky-header"><span class="stepnum">4</span> Repay Existing Loans</div>
-            <div id="repayWrap"></div>
-          </div>
+        <div class="section-block">
+          <div class="section-title sticky-header"><span class="stepnum">3</span> Repay Existing Loans <span class="optional-tag">optional</span></div>
+          <div id="repayWrap"></div>
+        </div>
 
-          <div class="section-block">
-            <div class="section-title">Review decisions</div>
-            <ul class="decision-log" id="decisionLog"></ul>
-          </div>
+        <div class="section-block">
+          <div class="section-title">Review decisions</div>
+          <ul class="decision-log" id="decisionLog"></ul>
+        </div>
 
-          <div class="actions-footer">
-            <button class="end-round-btn" id="lockInBtn">Lock in moves</button>
-          </div>
+        <div class="actions-footer">
+          <button class="end-round-btn" id="lockInBtn">Lock in moves</button>
         </div>
       </div>
     </div>
@@ -574,9 +566,9 @@ const ROUNDS = [
     narration:"Calm markets and a wide rate gap are drawing money into the yen carry trade. The Bank of Japan holds its policy rate near zero, and speculative positioning is already elevated even as confidence stays high.",
     indicators:{ liquidity:90, speculation:95, confidence:85 },
     news:[
-      {tier:'base', emoji:'💻', headline:'AI Infrastructure Boom', text:"US data-center operators are accelerating investment in new facilities as demand for AI computing capacity continues to grow. Several semiconductor and cloud companies announce plans to expand production and infrastructure capacity.", type:'Positive Signal', tone:'positive', impact:{rate:'Low', fx:'Low', price:'Medium'}},
-      {tier:'base', emoji:'🏦', headline:'Flight to Quality', text:"Several large institutional investors report increasing allocations to high-quality government securities as they seek greater portfolio stability amid growing uncertainty in global markets.", type:'Neutral', tone:'neutral', impact:{rate:'Low', fx:'Low', price:'Low'}},
-      {tier:'additional', emoji:'🛢', headline:'Middle East Escalation', text:"Military tensions escalate in the Middle East, raising concerns about disruptions to regional oil production and shipping routes. Several energy companies warn that prolonged disruptions could affect global supply.", type:'Mixed Signal', tone:'mixed', impact:{rate:'Low', fx:'Medium', price:'Low'}}
+      {tier:'base', emoji:'💻', headline:'AI Infrastructure Boom', text:"US data-center operators are accelerating investment in new facilities as demand for AI computing capacity continues to grow. Several semiconductor and cloud companies announce plans to expand production and infrastructure capacity.", type:'Positive Signal', tone:'positive', impactLevel:50},
+      {tier:'base', emoji:'🏦', headline:'Flight to Quality', text:"Several large institutional investors report increasing allocations to high-quality government securities as they seek greater portfolio stability amid growing uncertainty in global markets.", type:'Neutral', tone:'neutral', impactLevel:10},
+      {tier:'additional', emoji:'🛢', headline:'Middle East Escalation', text:"Military tensions escalate in the Middle East, raising concerns about disruptions to regional oil production and shipping routes. Several energy companies warn that prolonged disruptions could affect global supply.", type:'Mixed Signal', tone:'mixed', impactLevel:20}
     ]
   },
   {
@@ -586,9 +578,9 @@ const ROUNDS = [
     narration:"Cracks are forming beneath the surface. Currency-intervention rumors swirl, speculative carry positioning is being trimmed at the margin, and confidence has slipped from its highs even as headline conditions still look stable.",
     indicators:{ liquidity:70, speculation:60, confidence:60 },
     news:[
-      {tier:'additional', emoji:'💴', headline:'BOJ Intervention Rumor', text:"Japanese financial media report that authorities are closely monitoring recent movements in the currency market. Some market participants speculate that officials could take action if market conditions become excessive.", type:'Rumor', tone:'rumor', impact:{rate:'High', fx:'High', price:'Medium'}},
-      {tier:'base', emoji:'📊', headline:'Analyst Forecasts', text:"Analysts expect US companies to focus mainly on maintenance and replacement investment, while moderate consumer demand continues to support steady business activity.", type:'Neutral', tone:'neutral', impact:{rate:'Low', fx:'Low', price:'Low'}},
-      {tier:'base', emoji:'🛍', headline:'Moderate Consumer Demand', text:"Recent reports from major retailers suggest that consumer spending remains moderate, with households continuing to spend but becoming more selective in their purchases.", type:'Neutral', tone:'neutral', impact:{rate:'Low', fx:'Low', price:'Low'}}
+      {tier:'additional', emoji:'💴', headline:'BOJ Intervention Rumor', text:"Japanese financial media report that authorities are closely monitoring recent movements in the currency market. Some market participants speculate that officials could take action if market conditions become excessive.", type:'Rumor', tone:'rumor', impactLevel:80},
+      {tier:'base', emoji:'📊', headline:'Analyst Forecasts', text:"Analysts expect US companies to focus mainly on maintenance and replacement investment, while moderate consumer demand continues to support steady business activity.", type:'Neutral', tone:'neutral', impactLevel:50},
+      {tier:'base', emoji:'🛍', headline:'Moderate Consumer Demand', text:"Recent reports from major retailers suggest that consumer spending remains moderate, with households continuing to spend but becoming more selective in their purchases.", type:'Neutral', tone:'neutral', impactLevel:20}
     ]
   },
   {
@@ -598,9 +590,9 @@ const ROUNDS = [
     narration:"The unwind is here. The Bank of Japan has hiked its policy rate and the yen is appreciating sharply. Liquidity has thinned, speculative appetite has collapsed, and confidence has cratered alongside falling risk assets.",
     indicators:{ liquidity:40, speculation:15, confidence:15 },
     news:[
-      {tier:'additional', emoji:'🏦', headline:'BOJ Raises Rates', text:"The Bank of Japan raises its policy rate to 0.25%, citing higher inflation and continued increases in wages and prices. The BOJ indicates that further rate hikes may follow if inflation remains elevated and economic conditions continue to develop as expected.", type:'Major Signal', tone:'negative', impact:{rate:'High', fx:'High', price:'Medium'}},
-      {tier:'base', emoji:'🏛', headline:'Fed Holds Rates', text:"The Federal Reserve keeps its policy rate unchanged despite inflation continuing to ease toward its 2% target, which would normally support a rate cut. However, the recent increase in the unemployment rate raises concerns about the labor market.", type:'Mixed Signal', tone:'mixed', impact:{rate:'Low', fx:'Low', price:'Low'}},
-      {tier:'base', emoji:'🏭', headline:'US Manufacturing Weakness', text:"A survey of US manufacturers shows a decline in new orders, fueling concerns about weakening industrial activity. However, companies report that existing orders remain relatively stable.", type:'Noise', tone:'noise', impact:{rate:'Low', fx:'Low', price:'Low'}}
+      {tier:'additional', emoji:'🏦', headline:'BOJ Raises Rates', text:"The Bank of Japan raises its policy rate to 0.25%, citing higher inflation and continued increases in wages and prices. The BOJ indicates that further rate hikes may follow if inflation remains elevated and economic conditions continue to develop as expected.", type:'Major Signal', tone:'negative', impactLevel:90},
+      {tier:'base', emoji:'🏛', headline:'Fed Holds Rates', text:"The Federal Reserve keeps its policy rate unchanged despite inflation continuing to ease toward its 2% target, which would normally support a rate cut. However, the recent increase in the unemployment rate raises concerns about the labor market.", type:'Mixed Signal', tone:'mixed', impactLevel:60},
+      {tier:'base', emoji:'🏭', headline:'US Manufacturing Weakness', text:"A survey of US manufacturers shows a decline in new orders, fueling concerns about weakening industrial activity. However, companies report that existing orders remain relatively stable.", type:'Noise', tone:'noise', impactLevel:30}
     ]
   },
   {
@@ -610,9 +602,9 @@ const ROUNDS = [
     narration:"Markets stabilize. The BOJ signals patience on further hikes, forced deleveraging fades, and risk assets recover — though positioning remains far more cautious than before the crash.",
     indicators:{ liquidity:85, speculation:30, confidence:75 },
     news:[
-      {tier:'additional', emoji:'🕊', headline:'BOJ Signals Patience', text:"BOJ officials signal that further rate increases will be approached cautiously, with financial-market stability taken into account when considering future policy moves.", type:'Positive / Major Signal', tone:'positive', impact:{rate:'Medium', fx:'Medium', price:'Low'}},
-      {tier:'base', emoji:'📉', headline:'Margin Calls Force Deleveraging', text:"Following the sharp market decline, leveraged investors face margin calls and begin reducing leverage and closing positions. Many remain cautious about rebuilding large positions until markets stabilize.", type:'Second-order Signal', tone:'secondary', impact:{rate:'Low', fx:'Low', price:'Medium'}},
-      {tier:'base', emoji:'🛒', headline:'US Consumer Spending Surges', text:"US retail sales rose 1.0% in July, far exceeding expectations and signaling resilient consumer demand.", type:'Positive Signal', tone:'positive', impact:{rate:'Low', fx:'Low', price:'Medium'}}
+      {tier:'additional', emoji:'🕊', headline:'BOJ Signals Patience', text:"BOJ officials signal that further rate increases will be approached cautiously, with financial-market stability taken into account when considering future policy moves.", type:'Positive / Major Signal', tone:'positive', impactLevel:70},
+      {tier:'base', emoji:'📉', headline:'Margin Calls Force Deleveraging', text:"Following the sharp market decline, leveraged investors face margin calls and begin reducing leverage and closing positions. Many remain cautious about rebuilding large positions until markets stabilize.", type:'Second-order Signal', tone:'secondary', impactLevel:80},
+      {tier:'base', emoji:'🛒', headline:'US Consumer Spending Surges', text:"US retail sales rose 1.0% in July, far exceeding expectations and signaling resilient consumer demand.", type:'Positive Signal', tone:'positive', impactLevel:50}
     ]
   }
 ];
@@ -664,24 +656,21 @@ document.addEventListener('click', (e)=>{
 
 /* ---------------- FINANCE ENGINE (pure functions) ---------------- */
 const Finance = {
-  effectiveMaxJPY(role, usdjpy){
-    return Math.min(role.maxJPY, role.maxUSD * usdjpy);
-  },
   outstandingPrincipal(loans){
     return loans.reduce((s,l)=>s+l.principal,0);
   },
   outstandingTotalDue(loans){
     return loans.reduce((s,l)=>s+l.principal+l.accruedInterest,0);
   },
-  // Borrowing cap is a revolving limit on OUTSTANDING principal: repaying a loan
-  // frees up capacity again, up to the role's max — it does not track cumulative
-  // lifetime borrowing.
-  remainingCapacity(role, usdjpy, loans){
-    return Math.max(0, this.effectiveMaxJPY(role, usdjpy) - this.outstandingPrincipal(loans));
+  // Remaining Borrowing Limit = Max Borrowing by Role − Cumulative Principal
+  // Borrowed + Cumulative Principal Repaid (i.e. Max − currently Outstanding
+  // Principal). Repaying a loan frees this capacity back up, up to the role's max.
+  remainingCapacity(role, loans){
+    return Math.max(0, role.maxJPY - this.outstandingPrincipal(loans));
   },
   quoteBorrow(pct, role, usdjpy, loans){
     const requested = pct * role.maxJPY;
-    const remaining = this.remainingCapacity(role, usdjpy, loans);
+    const remaining = this.remainingCapacity(role, loans);
     const accepted = Math.min(requested, remaining);
     const borrowedUSD = usdjpy>0 ? accepted/usdjpy : 0;
     const exceededCap = requested > remaining + 1e-6;
@@ -893,7 +882,6 @@ function startRound(idx){
   state.infoMaxThisRound = 1; // exactly one purchasable "additional information" item per round
   state.revealedIdxThisRound=new Set();
   state.roundLog=[];
-  state.deskPage=1;
   state.roundFlags={ borrowDecided:false, buyDecided:false };
   borrowPctSelected=0;
 
@@ -920,18 +908,15 @@ function startRound(idx){
   document.getElementById('coinSvg').classList.remove('wilted');
 
   renderNews(r);
-  renderSellWithdraw();
-  renderRepayWrap();
   renderBorrow();
-  renderBuyDeposit();
+  renderAssetsArea();
+  renderRepayWrap();
   renderDecisionLog();
   updatePortfolioBar();
   updateTopMetrics();
-  checkPage1Complete();
-  goToDeskPage(1);
+  checkGates();
   startTimer();
 
-  $('toPage2Btn').onclick=()=>goToDeskPage(2);
   $('lockInBtn').onclick=()=>lockInRound();
 }
 
@@ -974,25 +959,12 @@ function onTimeExpired(){
     state.roundFlags.buyDecided = true;
     refreshAllPanels();
   }
-  goToDeskPage(2);
   lockInRound();
 }
 
-function goToDeskPage(n){
-  state.deskPage=n;
-  $('deskPage1').style.display = n===1 ? 'block' : 'none';
-  $('deskPage2').style.display = n===2 ? 'block' : 'none';
-  $('deskPageTag').textContent = n===1
-    ? 'Step 1 of 2 — Borrow & deploy capital'
-    : 'Step 2 of 2 — Manage existing position';
-  if(n===2) renderRepayWrap();
-  const deskEl=document.querySelector('.desk');
-  if(deskEl) deskEl.scrollTop=0;
-}
-
-function checkPage1Complete(){
+function checkGates(){
   const done = state.roundFlags.borrowDecided && state.roundFlags.buyDecided;
-  $('toPage2Btn').disabled = !done;
+  $('lockInBtn').disabled = !done;
   $('borrowCheck').textContent = state.roundFlags.borrowDecided ? '✓' : '';
   $('buyCheck').textContent = state.roundFlags.buyDecided ? '✓' : '';
 }
@@ -1014,9 +986,14 @@ function renderNews(r){
   });
   refreshNewsUI(r, items);
 }
+function impactBucket(pct){
+  if(pct>=70) return 'High';
+  if(pct>=40) return 'Medium';
+  return 'Low';
+}
 function impactLineHTML(n){
-  if(!state.role.extraSignal || !n.impact) return '';
-  return `<div class="impact-line">Impact next round — Rate: <b>${n.impact.rate}</b> · FX: <b>${n.impact.fx}</b> · Price: <b>${n.impact.price}</b></div>`;
+  if(!state.role.extraSignal || n.impactLevel==null) return '';
+  return `<div class="impact-line">Impact Level: <b>${n.impactLevel}%</b> (${impactBucket(n.impactLevel)}) — magnitude of effect on next round's interest rate, USD/JPY, and asset prices</div>`;
 }
 function refreshNewsUI(r, items){
   document.querySelectorAll('#newsList .news-item').forEach((li,i)=>{
@@ -1054,8 +1031,8 @@ function refreshNewsUI(r, items){
       Audio1.blip(760,0.1);
       refreshNewsUI(r, items);
       updatePortfolioBar(); updateTopMetrics(); renderDecisionLog();
-      renderSellWithdraw(); renderRepayWrap(); renderBorrow(); renderBuyDeposit();
-      checkPage1Complete();
+      renderAssetsArea(); renderRepayWrap(); renderBorrow();
+      checkGates();
     };
   });
   $('newsCapNote').textContent = state.infoRevealedThisRound>=state.infoMaxThisRound
@@ -1064,35 +1041,85 @@ function refreshNewsUI(r, items){
 }
 
 
-function renderSellWithdraw(){
-  const r=currentRound();
-  const wrap=$('sellWithdrawArea');
-  wrap.innerHTML=`
-    <div class="asset-row">
-      <div><div class="asset-name">US Tech</div><div class="asset-sub">${state.holdings.tech} units @ ${fmtUSD(r.techPrice)}</div></div>
-      <div class="asset-sub">Value: ${fmtUSD(state.holdings.tech*r.techPrice)}</div>
-      <input type="number" min="0" step="1" class="qty-input" id="sellTechQty" placeholder="qty">
-      <button class="mini-btn sell" id="sellTechBtn">Sell</button>
-      <span></span><span></span>
+function assetsAreaInnerHTML(r, buyLocked){
+  return `
+    <div class="trade-row">
+      <div><div class="asset-name">US Tech</div><div class="asset-sub">Price ${fmtUSD(r.techPrice)} · Held: ${state.holdings.tech}</div></div>
+      <div class="trade-group">
+        <span class="trade-label">Buy</span>
+        <input type="number" min="0" step="1" class="qty-input" id="buyTechQty" placeholder="qty" ${buyLocked?'disabled':''}>
+        <button class="mini-btn buy" id="buyTechBtn" ${buyLocked?'disabled':''}>Buy</button>
+      </div>
+      <div class="trade-group">
+        <span class="trade-label">Sell</span>
+        <input type="number" min="0" step="1" class="qty-input" id="sellTechQty" placeholder="qty">
+        <button class="mini-btn sell" id="sellTechBtn">Sell</button>
+      </div>
     </div>
-    <div class="asset-row">
-      <div><div class="asset-name">S&amp;P 500</div><div class="asset-sub">${state.holdings.sp} units @ ${fmtUSD(r.spPrice)}</div></div>
-      <div class="asset-sub">Value: ${fmtUSD(state.holdings.sp*r.spPrice)}</div>
-      <input type="number" min="0" step="1" class="qty-input" id="sellSPQty" placeholder="qty">
-      <button class="mini-btn sell" id="sellSPBtn">Sell</button>
-      <span></span><span></span>
+    <div class="trade-row">
+      <div><div class="asset-name">S&amp;P 500</div><div class="asset-sub">Price ${fmtUSD(r.spPrice)} · Held: ${state.holdings.sp}</div></div>
+      <div class="trade-group">
+        <span class="trade-label">Buy</span>
+        <input type="number" min="0" step="1" class="qty-input" id="buySPQty" placeholder="qty" ${buyLocked?'disabled':''}>
+        <button class="mini-btn buy" id="buySPBtn" ${buyLocked?'disabled':''}>Buy</button>
+      </div>
+      <div class="trade-group">
+        <span class="trade-label">Sell</span>
+        <input type="number" min="0" step="1" class="qty-input" id="sellSPQty" placeholder="qty">
+        <button class="mini-btn sell" id="sellSPBtn">Sell</button>
+      </div>
     </div>
-    <div class="asset-row">
-      <div><div class="asset-name">US Cash</div><div class="asset-sub">Balance: ${fmtUSD(state.usCashBalance)}</div></div>
-      <div class="asset-sub">Earns ${(r.usCashReturn*100).toFixed(1)}% this round</div>
-      <input type="number" min="0" step="1" class="qty-input" id="withdrawQty" placeholder="amt">
-      <button class="mini-btn sell" id="withdrawBtn">Withdraw</button>
-      <span></span><span></span>
+    <div class="trade-row">
+      <div><div class="asset-name">US Cash</div><div class="asset-sub">Balance ${fmtUSD(state.usCashBalance)} · Earns ${(r.usCashReturn*100).toFixed(1)}% this round</div></div>
+      <div class="trade-group">
+        <span class="trade-label">Deposit</span>
+        <input type="number" min="0" step="1" class="qty-input" id="depositQty" placeholder="amt" ${buyLocked?'disabled':''}>
+        <button class="mini-btn buy" id="depositBtn" ${buyLocked?'disabled':''}>Deposit</button>
+      </div>
+      <div class="trade-group">
+        <span class="trade-label">Withdraw</span>
+        <input type="number" min="0" step="1" class="qty-input" id="withdrawQty" placeholder="amt">
+        <button class="mini-btn sell" id="withdrawBtn">Withdraw</button>
+      </div>
     </div>
+    <div class="section-hint" style="margin-top:8px;">Free Cash available now: <strong class="mono">${fmtUSD(state.freeCash)}</strong>.</div>
+    ${buyLocked
+      ? `<div class="section-hint" style="color:var(--green);font-weight:600;">✓ Buy/Deposit decision locked for this round.</div>`
+      : `<button class="confirm-btn" id="confirmBuyBtn">Confirm buy/deposit decision (or Hold)</button>`}
   `;
+}
+
+function renderAssetsArea(){
+  const r=currentRound();
+  const wrap=$('assetsArea');
+  const borrowDecided = state.roundFlags && state.roundFlags.borrowDecided;
+  const buyDecided = state.roundFlags && state.roundFlags.buyDecided;
+
+  if(!borrowDecided){
+    wrap.innerHTML = `
+      <div class="gated">
+        <div class="gated-blur">${assetsAreaInnerHTML(r, true)}</div>
+        <div class="gated-overlay">Confirm your borrowing decision above to unlock trading.</div>
+      </div>`;
+    return;
+  }
+
+  wrap.innerHTML = assetsAreaInnerHTML(r, buyDecided);
   $('sellTechBtn').onclick=()=>doSell('tech');
   $('sellSPBtn').onclick=()=>doSell('sp');
   $('withdrawBtn').onclick=()=>doWithdraw();
+  if(buyDecided) return;
+  $('buyTechBtn').onclick=()=>doBuy('tech');
+  $('buySPBtn').onclick=()=>doBuy('sp');
+  $('depositBtn').onclick=()=>doDeposit();
+  $('confirmBuyBtn').onclick=()=>{
+    if(!state.roundLog.some(l=>l.startsWith('Bought') || l.startsWith('Deposited'))){
+      state.roundLog.push('Chose to hold — no buy or deposit this round.');
+    }
+    state.roundFlags.buyDecided = true;
+    refreshAllPanels();
+    toast('Buy/Deposit decision locked.');
+  };
 }
 
 function doSell(asset){
@@ -1127,10 +1154,14 @@ function doWithdraw(){
 function renderRepayWrap(){
   const r=currentRound();
   const wrap=$('repayWrap');
-  if(state.loans.length===0){
+  const borrowDecided = state.roundFlags && state.roundFlags.borrowDecided;
+  if(!borrowDecided || state.loans.length===0){
+    const overlayMsg = !borrowDecided
+      ? 'Confirm your borrowing decision above to unlock this section.'
+      : 'No outstanding JPY loans this round — nothing to repay.';
     wrap.innerHTML=`
-      <div class="repay-locked">
-        <div class="repay-blur-content">
+      <div class="gated">
+        <div class="gated-blur">
           <div class="loan-row">
             <span class="loan-id">#—</span>
             <span class="mono">No outstanding principal</span>
@@ -1139,7 +1170,7 @@ function renderRepayWrap(){
             <span></span>
           </div>
         </div>
-        <div class="repay-overlay">No outstanding JPY loans this round — nothing to repay.</div>
+        <div class="gated-overlay">${overlayMsg}</div>
       </div>`;
     return;
   }
@@ -1187,7 +1218,7 @@ function renderBorrow(){
   }
   const steps=[0,0.25,0.5,0.75,1.0];
   const btnRow=document.createElement('div'); btnRow.className='borrow-row';
-  const remainingNow = Finance.remainingCapacity(state.role, r.usdjpy, state.loans);
+  const remainingNow = Finance.remainingCapacity(state.role, state.loans);
   const outstandingNow = Finance.outstandingPrincipal(state.loans);
   steps.forEach(pct=>{
     const b=document.createElement('button');
@@ -1238,51 +1269,6 @@ function doBorrow(){
   toast(q.accepted>0 ? `Borrowed ${fmtJPY(q.accepted)}.` : 'No JPY borrowed this round.');
 }
 
-function renderBuyDeposit(){
-  const r=currentRound();
-  const wrap=$('buyDepositArea');
-  const locked = state.roundFlags && state.roundFlags.buyDecided;
-  wrap.innerHTML=`
-    <div class="asset-row">
-      <div><div class="asset-name">US Tech</div><div class="asset-sub">Price ${fmtUSD(r.techPrice)}</div></div>
-      <div class="asset-sub">Held: ${state.holdings.tech}</div>
-      <input type="number" min="0" step="1" class="qty-input" id="buyTechQty" placeholder="qty" ${locked?'disabled':''}>
-      <button class="mini-btn buy" id="buyTechBtn" ${locked?'disabled':''}>Buy</button>
-      <span></span><span></span>
-    </div>
-    <div class="asset-row">
-      <div><div class="asset-name">S&amp;P 500</div><div class="asset-sub">Price ${fmtUSD(r.spPrice)}</div></div>
-      <div class="asset-sub">Held: ${state.holdings.sp}</div>
-      <input type="number" min="0" step="1" class="qty-input" id="buySPQty" placeholder="qty" ${locked?'disabled':''}>
-      <button class="mini-btn buy" id="buySPBtn" ${locked?'disabled':''}>Buy</button>
-      <span></span><span></span>
-    </div>
-    <div class="asset-row">
-      <div><div class="asset-name">US Cash</div><div class="asset-sub">Balance ${fmtUSD(state.usCashBalance)}</div></div>
-      <div class="asset-sub">Earns ${(r.usCashReturn*100).toFixed(1)}% this round</div>
-      <input type="number" min="0" step="1" class="qty-input" id="depositQty" placeholder="amt" ${locked?'disabled':''}>
-      <button class="mini-btn buy" id="depositBtn" ${locked?'disabled':''}>Deposit</button>
-      <span></span><span></span>
-    </div>
-    <div class="section-hint" style="margin-top:8px;">Free Cash available now: <strong class="mono">${fmtUSD(state.freeCash)}</strong>.</div>
-    ${locked
-      ? `<div class="section-hint" style="color:var(--green);font-weight:600;">✓ Buy/Deposit decision locked for this round.</div>`
-      : `<button class="confirm-btn" id="confirmBuyBtn">Confirm buy/deposit decision (or Hold)</button>`}
-  `;
-  if(locked) return;
-  $('buyTechBtn').onclick=()=>doBuy('tech');
-  $('buySPBtn').onclick=()=>doBuy('sp');
-  $('depositBtn').onclick=()=>doDeposit();
-  $('confirmBuyBtn').onclick=()=>{
-    if(!state.roundLog.some(l=>l.startsWith('Bought') || l.startsWith('Deposited'))){
-      state.roundLog.push('Chose to hold — no buy or deposit this round.');
-    }
-    state.roundFlags.buyDecided = true;
-    refreshAllPanels();
-    toast('Buy/Deposit decision locked.');
-  };
-}
-
 function doBuy(asset){
   const r=currentRound();
   const input=$(asset==='tech'?'buyTechQty':'buySPQty');
@@ -1323,12 +1309,11 @@ function renderDecisionLog(){
 }
 
 function refreshAllPanels(){
-  renderSellWithdraw();
-  renderRepayWrap();
   renderBorrow();
-  renderBuyDeposit();
+  renderAssetsArea();
+  renderRepayWrap();
   renderDecisionLog();
-  checkPage1Complete();
+  checkGates();
   updatePortfolioBar();
   updateTopMetrics();
 }
@@ -1394,7 +1379,7 @@ function lockInRound(){
   const debtMTM = Finance.usdDebtMTM(state.loans, r.usdjpy);
   const netWealthVal = Finance.netWealth(gross, debtMTM);
   const status = Finance.status(netWealthVal, false);
-  const effCap = Finance.effectiveMaxJPY(state.role, r.usdjpy);
+  const effCap = state.role.maxJPY;
 
   const snapshot = {
     round: state.roundIndex, gross, debtMTM, netWealth: netWealthVal, status,
