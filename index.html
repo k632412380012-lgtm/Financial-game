@@ -201,6 +201,7 @@
   .borrow-btn{padding:8px 15px;border:1px solid var(--tulip-dark);border-radius:20px;background:transparent;color:var(--tulip-dark);font-family:var(--sub-font);font-weight:600;cursor:pointer;font-size:0.82rem;}
   .borrow-btn.selected{background:var(--tulip-dark);color:var(--paper);}
   .borrow-btn:disabled{opacity:0.3;cursor:default;}
+  .borrow-btn.exceeds-cap{filter:blur(1.6px);opacity:0.4;cursor:not-allowed;}
   .borrow-summary{font-family:var(--sub-font);font-size:0.78rem;color:#6b5a3a;margin-top:8px;line-height:1.6;}
   .confirm-btn{margin-top:10px;padding:9px 18px;border:none;border-radius:4px;background:var(--green);color:white;font-weight:600;cursor:pointer;font-size:0.85rem;font-family:var(--sub-font);}
   .confirm-btn:disabled{background:#9fae9f;cursor:default;}
@@ -515,14 +516,12 @@
 <div class="modal-overlay" id="guideModal">
   <div class="center-card guide-card">
     <h1>How to play — JPY Carry Trade</h1>
-    <div class="tag">4 rounds, 5 minutes each. You start with $0 — borrowing JPY is your only source of investable capital.</div>
+    <div class="tag">4 rounds, 5 minutes each. You start with $0 — borrowing JPY is your only source of capital.</div>
     <div class="guide-grid">
-      <div class="guide-step"><span class="gnum">1</span><p>Each round opens with 3 market news stories plus Liquidity, Speculation and Confidence indicators. Pay to reveal a story's type (Signal, Rumor, Noise…) if you want more clarity.</p></div>
-      <div class="guide-step"><span class="gnum">2</span><p>Borrow JPY as a 25% / 50% / 75% / 100% package of your role's lifetime cap. Borrowing never resets between rounds — once your packages add up to 100%, you cannot borrow more, even after repaying a loan.</p></div>
-      <div class="guide-step"><span class="gnum">3</span><p>Buy US Tech, S&amp;P 500, or deposit into US Cash with whatever Free Cash borrowing has given you — or hold and confirm no action.</p></div>
-      <div class="guide-step"><span class="gnum">4</span><p>On the next page, optionally sell holdings or withdraw US Cash for liquidity, and repay any open loan in full if you can afford it — no partial repayments.</p></div>
-      <div class="guide-step"><span class="gnum">5</span><p>Lock in your moves before the 5-minute clock runs out. Each loan accrues its own floating interest at that round's BOJ rate.</p></div>
-      <div class="guide-step"><span class="gnum">6</span><p>After round 4, everything is auto-liquidated and all JPY debt is settled at the final rate. Your Final Evaluation splits Investment P&amp;L from Funding P&amp;L and scores Financial Performance, Risk Management and Decision Quality.</p></div>
+      <div class="guide-step"><span class="gnum">1</span><p>Read the news, then borrow JPY (25/50/75/100% packages) and buy US Tech, S&amp;P 500, or US Cash. Your lifetime borrowing cap never resets, even if you repay a loan.</p></div>
+      <div class="guide-step"><span class="gnum">2</span><p>Next, optionally sell holdings, withdraw US Cash, or repay a loan in full — then lock in before time runs out.</p></div>
+      <div class="guide-step"><span class="gnum">3</span><p>Each round updates prices, FX, and interest. After round 4, everything is auto-liquidated and JPY debt is settled at the final rate.</p></div>
+      <div class="guide-step"><span class="gnum">4</span><p>Your Final Evaluation splits Investment from Funding P&amp;L and scores Financial Performance, Risk Management, and Decision Quality.</p></div>
     </div>
     <button class="big-btn" id="guideCloseBtn">Got it</button>
   </div>
@@ -623,55 +622,85 @@ const ASSET_LABELS = { tech:'US Tech', sp:'S&P 500' };
 const ROUND_SECONDS = 300; // 5 minutes per round
 
 /* ---------------- AUDIO (self-contained, synthesized — no external files) ---------------- */
+// "Rainy day lofi" ambience: a filtered noise "rain" bed plus a soft, lowpass-muffled
+// chord pad. Fully synthesized in-browser (no external audio file / network dependency),
+// so it always plays regardless of network access and carries no licensing risk.
 const Audio1 = (function(){
-  let ctx=null, masterGain=null, ambientNodes=[], enabled=true, started=false;
+  let ctx=null, masterGain=null, sfxGain=null, ambientNodes=[], enabled=true, started=false;
   function ensureCtx(){
     if(!ctx){
       const AC = window.AudioContext || window.webkitAudioContext;
       if(!AC) return null;
       ctx = new AC();
       masterGain = ctx.createGain();
-      masterGain.gain.value = enabled ? 0.05 : 0;
+      masterGain.gain.value = enabled ? 0.16 : 0;
       masterGain.connect(ctx.destination);
+      sfxGain = ctx.createGain();
+      sfxGain.gain.value = 0.35;
+      sfxGain.connect(ctx.destination);
     }
     if(ctx.state==='suspended') ctx.resume();
     return ctx;
   }
+  function makeRainBuffer(){
+    const len = ctx.sampleRate*2;
+    const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    let last=0;
+    for(let i=0;i<len;i++){
+      const white = Math.random()*2-1;
+      last = (last + 0.02*white) / 1.02; // brown-ish noise -> softer "rain" hiss than pure white noise
+      data[i] = last*3.5;
+    }
+    return buf;
+  }
   function startAmbient(){
     if(started || !ensureCtx()) return;
     started=true;
-    const freqs=[130.81,164.81,196.00]; // soft C3-E3-G3 triad
+    // Rain layer
+    const noiseSrc = ctx.createBufferSource();
+    noiseSrc.buffer = makeRainBuffer();
+    noiseSrc.loop = true;
+    const rainFilter = ctx.createBiquadFilter();
+    rainFilter.type='bandpass'; rainFilter.frequency.value=1800; rainFilter.Q.value=0.7;
+    const rainGain = ctx.createGain();
+    rainGain.gain.value=0.05;
+    noiseSrc.connect(rainFilter); rainFilter.connect(rainGain); rainGain.connect(masterGain);
+    noiseSrc.start();
+    ambientNodes.push(noiseSrc);
+    // Soft lofi chord pad (lowpass-filtered for that muffled "lofi" warmth)
+    const freqs=[130.81,164.81,196.00]; // C3-E3-G3
     freqs.forEach((f,i)=>{
       const osc=ctx.createOscillator();
-      osc.type='sine';
-      osc.frequency.value=f;
+      osc.type='sine'; osc.frequency.value=f;
+      const lp=ctx.createBiquadFilter();
+      lp.type='lowpass'; lp.frequency.value=900;
       const g=ctx.createGain();
-      g.gain.value=0.02;
-      osc.connect(g); g.connect(masterGain);
+      g.gain.value=0.05;
+      osc.connect(lp); lp.connect(g); g.connect(masterGain);
       osc.start();
       const lfo=ctx.createOscillator();
-      lfo.frequency.value=0.05+i*0.015;
+      lfo.frequency.value=0.045+i*0.012;
       const lfoGain=ctx.createGain();
-      lfoGain.gain.value=0.015;
-      lfo.connect(lfoGain);
-      lfoGain.connect(g.gain);
+      lfoGain.gain.value=0.03;
+      lfo.connect(lfoGain); lfoGain.connect(g.gain);
       lfo.start();
       ambientNodes.push(osc,lfo);
     });
   }
   function toggle(){
     enabled=!enabled;
-    if(masterGain) masterGain.gain.value = enabled?0.05:0;
+    if(masterGain) masterGain.gain.value = enabled?0.16:0;
     return enabled;
   }
   function blip(freq, dur, type){
     if(!ctx) return;
     const o=ctx.createOscillator(); const g=ctx.createGain();
     o.type=type||'triangle'; o.frequency.value=freq||660;
-    o.connect(g); g.connect(masterGain);
+    o.connect(g); g.connect(sfxGain);
     const t=ctx.currentTime;
     g.gain.setValueAtTime(0.0001,t);
-    g.gain.exponentialRampToValueAtTime(0.18,t+0.015);
+    g.gain.exponentialRampToValueAtTime(0.5,t+0.015);
     g.gain.exponentialRampToValueAtTime(0.0001,t+(dur||0.16));
     o.start(t); o.stop(t+(dur||0.16)+0.03);
   }
@@ -1205,9 +1234,14 @@ function renderBorrow(){
   const remainingNow = Finance.remainingCapacity(state.role, r.usdjpy, state.cumulativeBorrowed);
   steps.forEach(pct=>{
     const b=document.createElement('button');
-    b.className='borrow-btn'+(borrowPctSelected===pct?' selected':'');
+    const packageAmount = pct*state.role.maxJPY;
+    const exceedsRemaining = pct>0 && packageAmount > remainingNow + 1; // +1 JPY float tolerance
+    b.className='borrow-btn'+(borrowPctSelected===pct?' selected':'')+(exceedsRemaining?' exceeds-cap':'');
     b.textContent=(pct*100)+'%';
-    if(pct>0 && remainingNow<=0) b.disabled=true;
+    if(exceedsRemaining){
+      b.disabled=true;
+      b.title=`Exceeds your remaining lifetime capacity of ${fmtJPY(remainingNow)}`;
+    }
     b.onclick=()=>{ borrowPctSelected=pct; renderBorrow(); };
     btnRow.appendChild(b);
   });
