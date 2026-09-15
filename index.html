@@ -336,6 +336,8 @@
   <div class="mu-text">Updating markets…</div>
 </div>
 
+<div id="ytMusicContainer" style="position:absolute;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none;"></div>
+
 <div class="app">
 
   <div class="topbar" id="topbar" style="display:none;">
@@ -829,10 +831,54 @@ $('guideCloseBtn').onclick=closeGuide;
 $('splashHowtoBtn').onclick=openGuide;
 $('topHowtoBtn').onclick=openGuide;
 
-/* ---------------- MUSIC TOGGLE ---------------- */
+/* ---------------- BACKGROUND MUSIC (YouTube embed, with synthesized fallback) ---------------- */
+const YT_VIDEO_ID = 'ecUJLxeRHv8';
+let ytPlayer = null, ytReady = false, ytFailed = false;
+
+function useFallbackAmbience(){
+  if(ytFailed) return; // already switched
+  ytFailed = true;
+  Audio1.ensureCtx();
+  Audio1.startAmbient();
+}
+
+function loadYouTubeMusic(){
+  if(ytReady || ytFailed) return;
+  if(window.YT && window.YT.Player){ createYtPlayer(); return; }
+  const tag = document.createElement('script');
+  tag.src = 'https://www.youtube.com/iframe_api';
+  tag.onerror = useFallbackAmbience;
+  document.head.appendChild(tag);
+  window.onYouTubeIframeAPIReady = createYtPlayer;
+  setTimeout(()=>{ if(!ytReady) useFallbackAmbience(); }, 4000);
+}
+function createYtPlayer(){
+  if(ytFailed) return;
+  try{
+    ytPlayer = new YT.Player('ytMusicContainer', {
+      height:'1', width:'1', videoId: YT_VIDEO_ID,
+      playerVars:{ autoplay:1, mute:0, loop:1, playlist:YT_VIDEO_ID, controls:0, modestbranding:1, rel:0, iv_load_policy:3, disablekb:1, fs:0 },
+      events:{
+        onReady:(e)=>{
+          ytReady = true;
+          e.target.setVolume(35);
+          e.target.playVideo();
+          $('musicToggleBtn').textContent = '🔊 Music';
+        },
+        onError: useFallbackAmbience
+      }
+    });
+  } catch(err){ useFallbackAmbience(); }
+}
+
 $('musicToggleBtn').onclick=()=>{
-  const on = Audio1.toggle();
-  $('musicToggleBtn').textContent = on ? '🔊 Music' : '🔇 Music';
+  if(ytReady && ytPlayer){
+    if(ytPlayer.isMuted()){ ytPlayer.unMute(); $('musicToggleBtn').textContent='🔊 Music'; }
+    else { ytPlayer.mute(); $('musicToggleBtn').textContent='🔇 Music'; }
+  } else {
+    const on = Audio1.toggle();
+    $('musicToggleBtn').textContent = on ? '🔊 Music' : '🔇 Music';
+  }
 };
 
 /* ---------------- DECOR (splash) ---------------- */
@@ -885,7 +931,8 @@ function renderRoles(){
 renderRoles();
 
 $('splashStartBtn').onclick=()=>{
-  Audio1.ensureCtx(); Audio1.startAmbient();
+  Audio1.ensureCtx(); // unlocks the WebAudio context for SFX regardless of music source
+  loadYouTubeMusic();
   $('topbar').style.display='flex'; $('roundTag').textContent='Choose role'; showStage('stage-roles');
 };
 $('rolesNextBtn').onclick=()=>{
