@@ -95,6 +95,7 @@
   .type-badge.rumor{background:transparent;border:1px dashed rgba(228,200,120,0.55);color:var(--gold-light);}
   .type-badge.noise{background:rgba(243,234,216,0.08);color:rgba(243,234,216,0.5);}
   .type-badge.secondary{background:rgba(62,98,89,0.35);color:#bcdcd3;}
+  .impact-line{margin-top:6px;font-family:var(--sub-font);font-size:0.74rem;color:var(--gold-light);background:rgba(228,200,120,0.1);border:1px solid rgba(228,200,120,0.3);border-radius:4px;padding:4px 8px;}
 
   /* Well / improved feedback lists */
   .wi-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0;}
@@ -515,10 +516,11 @@
     <h1>How to play — JPY Carry Trade</h1>
     <div class="tag">4 rounds, 5 minutes each. You start with $0 — borrowing JPY is your only source of capital.</div>
     <div class="guide-grid">
-      <div class="guide-step"><span class="gnum">1</span><p>Read the news, then borrow JPY (25/50/75/100% packages) and buy US Tech, S&amp;P 500, or US Cash. Repaying a loan frees up your borrowing cap again.</p></div>
-      <div class="guide-step"><span class="gnum">2</span><p>Next, optionally sell holdings, withdraw US Cash, or repay a loan in full — then lock in before time runs out.</p></div>
-      <div class="guide-step"><span class="gnum">3</span><p>Each round updates prices, FX, and interest. After round 4, everything is auto-liquidated and JPY debt is settled at the final rate.</p></div>
-      <div class="guide-step"><span class="gnum">4</span><p>Your Final Evaluation splits Investment from Funding P&amp;L and scores Financial Performance, Risk Management, and Decision Quality.</p></div>
+      <div class="guide-step"><span class="gnum">1</span><p>Each round shows 2 base news stories; you can purchase 1 additional story. Information Hunters alone see each story's impact level on next round's rate, FX, and prices.</p></div>
+      <div class="guide-step"><span class="gnum">2</span><p>Borrow JPY (25/50/75/100% packages) and buy US Tech, S&amp;P 500, or US Cash. Repaying a loan frees up your borrowing cap again.</p></div>
+      <div class="guide-step"><span class="gnum">3</span><p>Next, optionally sell holdings, withdraw US Cash, or repay a loan in full — then lock in before time runs out.</p></div>
+      <div class="guide-step"><span class="gnum">4</span><p>Each round updates prices, FX, and interest. After round 4, everything is auto-liquidated and JPY debt is settled at the final rate.</p></div>
+      <div class="guide-step"><span class="gnum">5</span><p>Your Final Evaluation splits Investment from Funding P&amp;L and scores Financial Performance, Risk Management, and Decision Quality.</p></div>
     </div>
     <button class="big-btn" id="guideCloseBtn">Got it</button>
   </div>
@@ -542,7 +544,7 @@ const ROLES = {
   hunter:{
     key:'hunter', name:'Information Hunter',
     maxUSD:100000, maxJPY:15000000, infoCost:100, extraSignal:true,
-    desc:'Cheapest information and 2 reveals per round. You start with $0 — wins by knowing more than the room.'
+    desc:'Cheapest information, and the only role who can see a story\'s impact level. You start with $0 — wins by knowing more than the room.'
   },
   speculator:{
     key:'speculator', name:'Speculator',
@@ -572,9 +574,9 @@ const ROUNDS = [
     narration:"Calm markets and a wide rate gap are drawing money into the yen carry trade. The Bank of Japan holds its policy rate near zero, and speculative positioning is already elevated even as confidence stays high.",
     indicators:{ liquidity:90, speculation:95, confidence:85 },
     news:[
-      {emoji:'💻', headline:'AI Infrastructure Boom', text:"US data-center operators are accelerating investment in new facilities as demand for AI computing capacity continues to grow. Several semiconductor and cloud companies announce plans to expand production and infrastructure capacity.", implication:"AI demand ↑ → semiconductor/cloud revenue expectations ↑ → US Tech potentially ↑", type:'Positive Signal', tone:'positive'},
-      {emoji:'🏦', headline:'Flight to Quality', text:"Several large institutional investors report increasing allocations to high-quality government securities as they seek greater portfolio stability amid growing uncertainty in global markets.", implication:"Demand for safe assets ↑ → a rising preference for quality/cash-like holdings", type:'Neutral', tone:'neutral'},
-      {emoji:'🛢', headline:'Middle East Escalation', text:"Military tensions escalate in the Middle East, raising concerns about disruptions to regional oil production and shipping routes. Several energy companies warn that prolonged disruptions could affect global supply.", implication:"Supply disruption risk ↑ → oil prices potentially ↑ → second-order effects on inflation/corporate costs", type:'Mixed Signal', tone:'mixed'}
+      {tier:'base', emoji:'💻', headline:'AI Infrastructure Boom', text:"US data-center operators are accelerating investment in new facilities as demand for AI computing capacity continues to grow. Several semiconductor and cloud companies announce plans to expand production and infrastructure capacity.", type:'Positive Signal', tone:'positive', impact:{rate:'Low', fx:'Low', price:'Medium'}},
+      {tier:'base', emoji:'🏦', headline:'Flight to Quality', text:"Several large institutional investors report increasing allocations to high-quality government securities as they seek greater portfolio stability amid growing uncertainty in global markets.", type:'Neutral', tone:'neutral', impact:{rate:'Low', fx:'Low', price:'Low'}},
+      {tier:'additional', emoji:'🛢', headline:'Middle East Escalation', text:"Military tensions escalate in the Middle East, raising concerns about disruptions to regional oil production and shipping routes. Several energy companies warn that prolonged disruptions could affect global supply.", type:'Mixed Signal', tone:'mixed', impact:{rate:'Low', fx:'Medium', price:'Low'}}
     ]
   },
   {
@@ -584,9 +586,9 @@ const ROUNDS = [
     narration:"Cracks are forming beneath the surface. Currency-intervention rumors swirl, speculative carry positioning is being trimmed at the margin, and confidence has slipped from its highs even as headline conditions still look stable.",
     indicators:{ liquidity:70, speculation:60, confidence:60 },
     news:[
-      {emoji:'💴', headline:'BOJ Intervention Rumor', text:"Japanese financial media report that authorities are closely monitoring recent movements in the currency market. Some market participants speculate that officials could take action if market conditions become excessive.", type:'Rumor', tone:'rumor'},
-      {emoji:'📊', headline:'Analyst Forecasts', text:"Analysts expect US companies to focus mainly on maintenance and replacement investment, while moderate consumer demand continues to support steady business activity.", type:'Neutral', tone:'neutral'},
-      {emoji:'🛍', headline:'Moderate Consumer Demand', text:"Recent reports from major retailers suggest that consumer spending remains moderate, with households continuing to spend but becoming more selective in their purchases.", type:'Neutral', tone:'neutral'}
+      {tier:'additional', emoji:'💴', headline:'BOJ Intervention Rumor', text:"Japanese financial media report that authorities are closely monitoring recent movements in the currency market. Some market participants speculate that officials could take action if market conditions become excessive.", type:'Rumor', tone:'rumor', impact:{rate:'High', fx:'High', price:'Medium'}},
+      {tier:'base', emoji:'📊', headline:'Analyst Forecasts', text:"Analysts expect US companies to focus mainly on maintenance and replacement investment, while moderate consumer demand continues to support steady business activity.", type:'Neutral', tone:'neutral', impact:{rate:'Low', fx:'Low', price:'Low'}},
+      {tier:'base', emoji:'🛍', headline:'Moderate Consumer Demand', text:"Recent reports from major retailers suggest that consumer spending remains moderate, with households continuing to spend but becoming more selective in their purchases.", type:'Neutral', tone:'neutral', impact:{rate:'Low', fx:'Low', price:'Low'}}
     ]
   },
   {
@@ -596,9 +598,9 @@ const ROUNDS = [
     narration:"The unwind is here. The Bank of Japan has hiked its policy rate and the yen is appreciating sharply. Liquidity has thinned, speculative appetite has collapsed, and confidence has cratered alongside falling risk assets.",
     indicators:{ liquidity:40, speculation:15, confidence:15 },
     news:[
-      {emoji:'🏦', headline:'BOJ Raises Rates', text:"The Bank of Japan raises its policy rate to 0.25%, citing higher inflation and continued increases in wages and prices. The BOJ indicates that further rate hikes may follow if inflation remains elevated and economic conditions continue to develop as expected.", type:'Major Signal', tone:'negative'},
-      {emoji:'🏛', headline:'Fed Holds Rates', text:"The Federal Reserve keeps its policy rate unchanged despite inflation continuing to ease toward its 2% target, which would normally support a rate cut. However, the recent increase in the unemployment rate raises concerns about the labor market.", type:'Mixed Signal', tone:'mixed'},
-      {emoji:'🏭', headline:'US Manufacturing Weakness', text:"A survey of US manufacturers shows a decline in new orders, fueling concerns about weakening industrial activity. However, companies report that existing orders remain relatively stable.", type:'Noise', tone:'noise'}
+      {tier:'additional', emoji:'🏦', headline:'BOJ Raises Rates', text:"The Bank of Japan raises its policy rate to 0.25%, citing higher inflation and continued increases in wages and prices. The BOJ indicates that further rate hikes may follow if inflation remains elevated and economic conditions continue to develop as expected.", type:'Major Signal', tone:'negative', impact:{rate:'High', fx:'High', price:'Medium'}},
+      {tier:'base', emoji:'🏛', headline:'Fed Holds Rates', text:"The Federal Reserve keeps its policy rate unchanged despite inflation continuing to ease toward its 2% target, which would normally support a rate cut. However, the recent increase in the unemployment rate raises concerns about the labor market.", type:'Mixed Signal', tone:'mixed', impact:{rate:'Low', fx:'Low', price:'Low'}},
+      {tier:'base', emoji:'🏭', headline:'US Manufacturing Weakness', text:"A survey of US manufacturers shows a decline in new orders, fueling concerns about weakening industrial activity. However, companies report that existing orders remain relatively stable.", type:'Noise', tone:'noise', impact:{rate:'Low', fx:'Low', price:'Low'}}
     ]
   },
   {
@@ -608,9 +610,9 @@ const ROUNDS = [
     narration:"Markets stabilize. The BOJ signals patience on further hikes, forced deleveraging fades, and risk assets recover — though positioning remains far more cautious than before the crash.",
     indicators:{ liquidity:85, speculation:30, confidence:75 },
     news:[
-      {emoji:'🕊', headline:'BOJ Signals Patience', text:"BOJ officials signal that further rate increases will be approached cautiously, with financial-market stability taken into account when considering future policy moves.", type:'Positive / Major Signal', tone:'positive'},
-      {emoji:'📉', headline:'Margin Calls Force Deleveraging', text:"Following the sharp market decline, leveraged investors face margin calls and begin reducing leverage and closing positions. Many remain cautious about rebuilding large positions until markets stabilize.", type:'Second-order Signal', tone:'secondary'},
-      {emoji:'🛒', headline:'US Consumer Spending Surges', text:"US retail sales rose 1.0% in July, far exceeding expectations and signaling resilient consumer demand.", type:'Positive Signal', tone:'positive'}
+      {tier:'additional', emoji:'🕊', headline:'BOJ Signals Patience', text:"BOJ officials signal that further rate increases will be approached cautiously, with financial-market stability taken into account when considering future policy moves.", type:'Positive / Major Signal', tone:'positive', impact:{rate:'Medium', fx:'Medium', price:'Low'}},
+      {tier:'base', emoji:'📉', headline:'Margin Calls Force Deleveraging', text:"Following the sharp market decline, leveraged investors face margin calls and begin reducing leverage and closing positions. Many remain cautious about rebuilding large positions until markets stabilize.", type:'Second-order Signal', tone:'secondary', impact:{rate:'Low', fx:'Low', price:'Medium'}},
+      {tier:'base', emoji:'🛒', headline:'US Consumer Spending Surges', text:"US retail sales rose 1.0% in July, far exceeding expectations and signaling resilient consumer demand.", type:'Positive Signal', tone:'positive', impact:{rate:'Low', fx:'Low', price:'Medium'}}
     ]
   }
 ];
@@ -816,7 +818,7 @@ function renderRoles(){
     card.className='role-card'; card.dataset.role=r.key;
     card.innerHTML=`<h3>${r.name}</h3><p>${r.desc}</p>
       <span class="stat-line">Max JPY borrowing cap: ${fmtJPY(r.maxJPY)}</span>
-      <span class="stat-line">Information cost: ${fmtUSD(r.infoCost)}${r.extraSignal?' (2 reveals/round)':''}</span>
+      <span class="stat-line">Information cost: ${fmtUSD(r.infoCost)}${r.extraSignal?' (sees impact level)':''}</span>
       <div class="cap-line">Starting Free Cash: $0 — borrow JPY to fund your first trade</div>`;
     card.onclick=()=>{
       document.querySelectorAll('.role-card').forEach(c=>c.classList.remove('selected'));
@@ -888,7 +890,7 @@ function renderBriefing(idx){
 function startRound(idx){
   state.roundIndex=idx;
   state.infoRevealedThisRound=0;
-  state.infoMaxThisRound = state.role.extraSignal ? 2 : 1;
+  state.infoMaxThisRound = 1; // exactly one purchasable "additional information" item per round
   state.revealedIdxThisRound=new Set();
   state.roundLog=[];
   state.deskPage=1;
@@ -1012,34 +1014,43 @@ function renderNews(r){
   });
   refreshNewsUI(r, items);
 }
+function impactLineHTML(n){
+  if(!state.role.extraSignal || !n.impact) return '';
+  return `<div class="impact-line">Impact next round — Rate: <b>${n.impact.rate}</b> · FX: <b>${n.impact.fx}</b> · Price: <b>${n.impact.price}</b></div>`;
+}
 function refreshNewsUI(r, items){
   document.querySelectorAll('#newsList .news-item').forEach((li,i)=>{
     const n=items[i];
+    if(n.tier==='base'){
+      const toneClass = TONE_CLASS[n.tone] || 'neutral';
+      li.innerHTML = `<span class="news-headline">${n.emoji||''} ${n.headline}</span>${n.text}<span class="type-badge ${toneClass}">${n.type}</span>${impactLineHTML(n)}`;
+      return;
+    }
+    // additional (purchasable) item — fully hidden until bought
     const revealed = state.revealedIdxThisRound.has(i);
-    let badge;
+    let body;
     if(revealed){
       const toneClass = TONE_CLASS[n.tone] || 'neutral';
-      const implicationLine = (state.role.extraSignal && n.implication) ? `<div class="asset-sub" style="margin-top:5px;">↳ ${n.implication}</div>` : '';
-      badge = `<span class="type-badge ${toneClass}">${n.type}</span>${implicationLine}`;
+      body = `<span class="news-headline">${n.emoji||''} ${n.headline}</span>${n.text}<span class="type-badge ${toneClass}">${n.type}</span>${impactLineHTML(n)}`;
     } else if(state.infoRevealedThisRound >= state.infoMaxThisRound){
-      badge = `<div class="truth-locked">Type not purchased this round</div>`;
+      body = `<span class="news-headline">🔒 Additional Information</span><div class="truth-locked">Not purchased this round.</div>`;
     } else {
-      badge = `<button class="reveal-btn" data-idx="${i}">Reveal type — ${fmtUSD(state.role.infoCost)}</button>`;
+      body = `<span class="news-headline">🔒 Additional Information</span><div class="section-hint" style="margin:4px 0 0;">One more market story is available this round.</div><button class="reveal-btn" data-idx="${i}">Purchase — ${fmtUSD(state.role.infoCost)}</button>`;
     }
-    li.innerHTML = `<span class="news-headline">${n.emoji||''} ${n.headline}</span>${n.text}${badge}`;
+    li.innerHTML = body;
   });
   document.querySelectorAll('.reveal-btn').forEach(btn=>{
     btn.onclick=()=>{
       const idx=+btn.dataset.idx;
       const cost=state.role.infoCost;
       if(state.freeCash<cost){ toast('Not enough Free Cash for information.'); state.invalidAttempts++; return; }
-      if(state.infoRevealedThisRound>=state.infoMaxThisRound){ toast('No reveals left this round.'); return; }
+      if(state.infoRevealedThisRound>=state.infoMaxThisRound){ toast('No purchase left this round.'); return; }
       state.freeCash-=cost;
       state.totalInfoCost+=cost;
       state.infoRevealedThisRound++;
       state.totalInfoRevealsUsed++;
       state.revealedIdxThisRound.add(idx);
-      state.roundLog.push(`Paid ${fmtUSD(cost)} to reveal news type.`);
+      state.roundLog.push(`Paid ${fmtUSD(cost)} for this round's additional information.`);
       Audio1.blip(760,0.1);
       refreshNewsUI(r, items);
       updatePortfolioBar(); updateTopMetrics(); renderDecisionLog();
@@ -1048,8 +1059,8 @@ function refreshNewsUI(r, items){
     };
   });
   $('newsCapNote').textContent = state.infoRevealedThisRound>=state.infoMaxThisRound
-    ? "You've used all information reveals for this round."
-    : `You may reveal ${state.infoMaxThisRound - state.infoRevealedThisRound} more piece(s) of information this round.`;
+    ? "You've used this round's additional information purchase."
+    : "You may purchase this round's additional information once.";
 }
 
 
