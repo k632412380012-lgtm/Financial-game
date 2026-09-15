@@ -401,7 +401,7 @@
   <div class="stage" id="stage-roles">
     <div class="center-card">
       <h1>Choose your role</h1>
-      <div class="tag">Every role starts with $0 cash. Your role sets your lifetime JPY borrowing ceiling and the price of information.</div>
+      <div class="tag">Every role starts with $0 cash. Your role sets your JPY borrowing cap and the price of information.</div>
       <div class="role-grid" id="roleGrid"></div>
       <button class="big-btn" id="rolesNextBtn" disabled>Confirm role</button>
     </div>
@@ -515,7 +515,7 @@
     <h1>How to play — JPY Carry Trade</h1>
     <div class="tag">4 rounds, 5 minutes each. You start with $0 — borrowing JPY is your only source of capital.</div>
     <div class="guide-grid">
-      <div class="guide-step"><span class="gnum">1</span><p>Read the news, then borrow JPY (25/50/75/100% packages) and buy US Tech, S&amp;P 500, or US Cash. Your lifetime borrowing cap never resets, even if you repay a loan.</p></div>
+      <div class="guide-step"><span class="gnum">1</span><p>Read the news, then borrow JPY (25/50/75/100% packages) and buy US Tech, S&amp;P 500, or US Cash. Repaying a loan frees up your borrowing cap again.</p></div>
       <div class="guide-step"><span class="gnum">2</span><p>Next, optionally sell holdings, withdraw US Cash, or repay a loan in full — then lock in before time runs out.</p></div>
       <div class="guide-step"><span class="gnum">3</span><p>Each round updates prices, FX, and interest. After round 4, everything is auto-liquidated and JPY debt is settled at the final rate.</p></div>
       <div class="guide-step"><span class="gnum">4</span><p>Your Final Evaluation splits Investment from Funding P&amp;L and scores Financial Performance, Risk Management, and Decision Quality.</p></div>
@@ -537,7 +537,7 @@ const ROLES = {
   conservative:{
     key:'conservative', name:'Conservative Investor',
     maxUSD:80000, maxJPY:12000000, infoCost:200, extraSignal:false,
-    desc:'Smallest lifetime JPY borrowing cap. You start with $0 — wins by staying liquid and solvent.'
+    desc:'Smallest JPY borrowing cap. You start with $0 — wins by staying liquid and solvent.'
   },
   hunter:{
     key:'hunter', name:'Information Hunter',
@@ -547,7 +547,7 @@ const ROLES = {
   speculator:{
     key:'speculator', name:'Speculator',
     maxUSD:120000, maxJPY:18000000, infoCost:300, extraSignal:false,
-    desc:'Largest lifetime JPY borrowing cap. You start with $0 — wins big or loses big.'
+    desc:'Largest JPY borrowing cap. You start with $0 — wins big or loses big.'
   }
 };
 
@@ -671,14 +671,15 @@ const Finance = {
   outstandingTotalDue(loans){
     return loans.reduce((s,l)=>s+l.principal+l.accruedInterest,0);
   },
-  // Borrowing cap is CUMULATIVE and lifetime: it tracks every JPY ever borrowed
-  // across all 4 rounds, and never resets or frees up when a loan is repaid.
-  remainingCapacity(role, usdjpy, cumulativeBorrowed){
-    return Math.max(0, this.effectiveMaxJPY(role, usdjpy) - cumulativeBorrowed);
+  // Borrowing cap is a revolving limit on OUTSTANDING principal: repaying a loan
+  // frees up capacity again, up to the role's max — it does not track cumulative
+  // lifetime borrowing.
+  remainingCapacity(role, usdjpy, loans){
+    return Math.max(0, this.effectiveMaxJPY(role, usdjpy) - this.outstandingPrincipal(loans));
   },
-  quoteBorrow(pct, role, usdjpy, cumulativeBorrowed){
+  quoteBorrow(pct, role, usdjpy, loans){
     const requested = pct * role.maxJPY;
-    const remaining = this.remainingCapacity(role, usdjpy, cumulativeBorrowed);
+    const remaining = this.remainingCapacity(role, usdjpy, loans);
     const accepted = Math.min(requested, remaining);
     const borrowedUSD = usdjpy>0 ? accepted/usdjpy : 0;
     const exceededCap = requested > remaining + 1e-6;
@@ -729,7 +730,7 @@ function newState(role){
     loans: [],                   // {id, openRound, principal, accruedInterest, usdjpyAtOpen}
     closedLoans: [],             // metrics recorded at repay/settlement time
     nextLoanId: 1,
-    cumulativeBorrowed: 0,       // JPY, lifetime — the cap that never resets or frees up on repayment
+    cumulativeBorrowed: 0,       // JPY, all-time total ever borrowed (analytics only — NOT the cap; the cap is on outstanding principal and frees up on repayment)
     totalBorrowedUSD: 0,         // USD credited from every borrow action ("Total USD Funding Used")
     borrowedByRound: [0,0,0,0],  // USD borrowed per round index, for debt-timing analysis
     infoRevealedThisRound: 0,
@@ -814,7 +815,7 @@ function renderRoles(){
     const card=document.createElement('div');
     card.className='role-card'; card.dataset.role=r.key;
     card.innerHTML=`<h3>${r.name}</h3><p>${r.desc}</p>
-      <span class="stat-line">Max lifetime JPY borrowing: ${fmtJPY(r.maxJPY)}</span>
+      <span class="stat-line">Max JPY borrowing cap: ${fmtJPY(r.maxJPY)}</span>
       <span class="stat-line">Information cost: ${fmtUSD(r.infoCost)}${r.extraSignal?' (2 reveals/round)':''}</span>
       <div class="cap-line">Starting Free Cash: $0 — borrow JPY to fund your first trade</div>`;
     card.onclick=()=>{
@@ -847,11 +848,11 @@ function renderConfirm(role){
     <div class="tag">Role confirmed. Review your starting position before entering Round 1.</div>
     <div class="final-stats">
       <div class="final-stat"><div class="flabel">Starting Free Cash</div><div class="fval">$0</div></div>
-      <div class="final-stat"><div class="flabel">Max Lifetime JPY Borrowing</div><div class="fval">${fmtJPY(role.maxJPY)}</div></div>
+      <div class="final-stat"><div class="flabel">Max JPY Borrowing Cap</div><div class="fval">${fmtJPY(role.maxJPY)}</div></div>
       <div class="final-stat"><div class="flabel">USD-Equivalent Cross-Cap</div><div class="fval">${fmtUSD(role.maxUSD)}</div></div>
       <div class="final-stat"><div class="flabel">Information cost / reveal</div><div class="fval">${fmtUSD(role.infoCost)}</div></div>
     </div>
-    <p>You start with <strong>$0</strong> — borrowing JPY is your only source of investable capital. Your borrowing cap is a <strong>lifetime total</strong> spread across all 4 rounds in fixed 25%/50%/75%/100% packages: once your packages add up to 100% of your cap, you cannot borrow more, even if you've since repaid a loan. Each round you can borrow, buy US Tech / S&amp;P 500 / US Cash, then optionally sell, withdraw, or repay a loan in full. After Round 4, everything is auto-settled at the final market rate.</p>
+    <p>You start with <strong>$0</strong> — borrowing JPY is your only source of investable capital. Your borrowing cap works like a revolving limit on your <strong>outstanding</strong> JPY principal: each round you can borrow a 25%/50%/75%/100% package of your role's cap, and repaying a loan in full frees that capacity up again, up to your role's max. Each round you can borrow, buy US Tech / S&amp;P 500 / US Cash, then optionally sell, withdraw, or repay a loan in full. After Round 4, everything is auto-settled at the final market rate.</p>
     <button class="big-btn" id="confirmNextBtn">Begin Phase III</button>
   `;
   $('confirmNextBtn').onclick=()=>{ renderBriefing(0); showStage('stage-briefing'); };
@@ -1175,7 +1176,8 @@ function renderBorrow(){
   }
   const steps=[0,0.25,0.5,0.75,1.0];
   const btnRow=document.createElement('div'); btnRow.className='borrow-row';
-  const remainingNow = Finance.remainingCapacity(state.role, r.usdjpy, state.cumulativeBorrowed);
+  const remainingNow = Finance.remainingCapacity(state.role, r.usdjpy, state.loans);
+  const outstandingNow = Finance.outstandingPrincipal(state.loans);
   steps.forEach(pct=>{
     const b=document.createElement('button');
     const packageAmount = pct*state.role.maxJPY;
@@ -1184,18 +1186,19 @@ function renderBorrow(){
     b.textContent=(pct*100)+'%';
     if(exceedsRemaining){
       b.disabled=true;
-      b.title=`Exceeds your remaining lifetime capacity of ${fmtJPY(remainingNow)}`;
+      b.title=`Exceeds your remaining capacity of ${fmtJPY(remainingNow)}`;
     }
     b.onclick=()=>{ borrowPctSelected=pct; renderBorrow(); };
     btnRow.appendChild(b);
   });
-  const q = Finance.quoteBorrow(borrowPctSelected, state.role, r.usdjpy, state.cumulativeBorrowed);
+  const q = Finance.quoteBorrow(borrowPctSelected, state.role, r.usdjpy, state.loans);
   const summary=document.createElement('div'); summary.className='borrow-summary';
   summary.innerHTML=`
-    Lifetime borrowed so far: ${fmtJPY(state.cumulativeBorrowed)} of ${fmtJPY(state.role.maxJPY)} cap (remaining ${fmtJPY(q.remaining)})<br>
+    Outstanding JPY principal: ${fmtJPY(outstandingNow)} of ${fmtJPY(state.role.maxJPY)} cap (remaining capacity ${fmtJPY(q.remaining)})<br>
     Requested this round: ${fmtJPY(q.requested)}<br>
-    Would be accepted: ${fmtJPY(q.accepted)} → credited ${fmtUSD(q.borrowedUSD)} to Free Cash
-    ${q.exceededCap ? '<br><span style="color:var(--tulip);">This package exceeds your remaining lifetime capacity — it will be clamped to what\'s left.</span>' : ''}
+    Would be accepted: ${fmtJPY(q.accepted)} → credited ${fmtUSD(q.borrowedUSD)} to Free Cash<br>
+    <span style="color:#8a7a55;">Repaying a loan frees this capacity up again, up to your role's max.</span>
+    ${q.exceededCap ? '<br><span style="color:var(--tulip);">This package exceeds your remaining capacity — it will be clamped to what\'s left.</span>' : ''}
   `;
   const btn=document.createElement('button'); btn.className='confirm-btn'; btn.textContent='Confirm borrowing decision';
   btn.onclick=()=>doBorrow();
@@ -1204,7 +1207,7 @@ function renderBorrow(){
 
 function doBorrow(){
   const r=currentRound();
-  const q = Finance.quoteBorrow(borrowPctSelected, state.role, r.usdjpy, state.cumulativeBorrowed);
+  const q = Finance.quoteBorrow(borrowPctSelected, state.role, r.usdjpy, state.loans);
   if(q.exceededCap){ state.invalidAttempts++; }
   if(q.accepted>0){
     const loan = { id:state.nextLoanId++, openRound:state.roundIndex, principal:q.accepted, accruedInterest:0, usdjpyAtOpen:r.usdjpy };
@@ -1423,7 +1426,6 @@ function renderRoundDebrief(r, snap){
     feedback.push(`US Cash earned ${fmtUSD(snap.usCashInterest)} this round.`);
   }
   feedback.push(`Net Wealth at market close: ${fmtUSD(snap.netWealth)} (${snap.status.replace('_',' ')}).`);
-  feedback.push(`Lifetime JPY borrowed so far: ${fmtJPY(snap.cumulativeBorrowedSoFar)} of ${fmtJPY(state.role.maxJPY)} cap.`);
 
   Audio1.chime();
   const isLastRound = state.roundIndex >= ROUNDS.length-1;
