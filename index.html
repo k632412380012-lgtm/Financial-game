@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Arbiverse — Phase III: JPY Carry Trade</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&display=swap" rel="stylesheet">
 <style>
   :root{
     --navy:#171B2E;
@@ -26,9 +26,9 @@
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
-  body{background:var(--navy);font-family:'Inter',sans-serif;color:var(--ink);min-height:100vh;}
+  body{background:var(--navy);font-family:var(--sub-font);color:var(--ink);min-height:100vh;}
   .app{max-width:1200px;margin:0 auto;padding:18px;}
-  .mono{font-family:'IBM Plex Mono',monospace;}
+  .mono{font-family:var(--sub-font);}
 
   /* ---------- HEADER ---------- */
   .topbar{
@@ -46,15 +46,15 @@
     background:transparent;border:1px solid rgba(228,200,120,0.4);border-radius:20px;padding:6px 14px;cursor:pointer;
   }
   .howto-topbtn:hover{background:rgba(228,200,120,0.1);}
-  .roundtag{font-family:'IBM Plex Mono';color:var(--gold-light);font-size:0.8rem;}
+  .roundtag{font-family:var(--sub-font);color:var(--gold-light);font-size:0.8rem;}
 
   .topmetrics{display:flex;flex-wrap:wrap;gap:14px;width:100%;padding-top:8px;border-top:1px solid rgba(228,200,120,0.15);margin-top:6px;}
   .tm{display:flex;flex-direction:column;gap:1px;min-width:92px;}
   .tm .tlabel{font-family:var(--sub-font);font-size:0.63rem;text-transform:uppercase;letter-spacing:0.4px;color:rgba(243,234,216,0.55);}
-  .tm .tval{font-family:'IBM Plex Mono';font-size:0.88rem;font-weight:600;color:var(--cream);}
+  .tm .tval{font-family:var(--sub-font);font-size:0.88rem;font-weight:600;color:var(--cream);}
   .tm .tval.neg{color:#e8877f;}
   .tm .tval.pos{color:#8fd6a8;}
-  .status-pill{font-family:'IBM Plex Mono';font-size:0.72rem;font-weight:700;padding:3px 10px;border-radius:12px;display:inline-block;}
+  .status-pill{font-family:var(--sub-font);font-size:0.72rem;font-weight:700;padding:3px 10px;border-radius:12px;display:inline-block;}
   .status-pill.ACTIVE{background:rgba(76,122,92,0.25);color:#8fd6a8;border:1px solid rgba(76,122,92,0.6);}
   .status-pill.AT_RISK{background:rgba(200,155,60,0.25);color:var(--gold-light);border:1px solid rgba(228,200,120,0.6);}
   .status-pill.BANKRUPT{background:rgba(184,52,46,0.3);color:#f0a29c;border:1px solid rgba(184,52,46,0.7);}
@@ -65,8 +65,8 @@
   .split{display:grid;grid-template-columns: 1fr 1.25fr;gap:0;border-radius:6px;overflow:hidden;box-shadow:var(--shadow);}
   @media (max-width:860px){ .split{grid-template-columns:1fr;} }
 
-  .almanac{background:radial-gradient(120% 100% at 20% 0%, #232a4d 0%, #171B2E 60%);color:var(--cream);padding:26px 24px;position:relative;border-right:2px solid var(--gold);}
-  .desk{background:var(--paper);padding:26px 24px;}
+  .almanac{background:radial-gradient(120% 100% at 20% 0%, #232a4d 0%, #171B2E 60%);color:var(--cream);padding:26px 24px;position:relative;border-right:2px solid var(--gold);max-height:82vh;overflow-y:auto;}
+  .desk{background:var(--paper);padding:26px 24px;max-height:82vh;overflow-y:auto;position:relative;}
 
   h2.panel-title{font-family:var(--sub-font);font-weight:700;font-size:1.05rem;margin:0 0 14px 0;letter-spacing:0.2px;}
   .almanac h2.panel-title{color:var(--gold-light);}
@@ -94,13 +94,13 @@
   .macro-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;}
   .macro-cell{background:rgba(243,234,216,0.06);border-radius:4px;padding:8px 10px;}
   .macro-cell .mlabel{font-family:var(--sub-font);font-size:0.65rem;text-transform:uppercase;color:rgba(243,234,216,0.55);letter-spacing:0.4px;}
-  .macro-cell .mval{font-family:'IBM Plex Mono';font-size:0.95rem;color:var(--gold-light);font-weight:600;}
+  .macro-cell .mval{font-family:var(--sub-font);font-size:0.95rem;color:var(--gold-light);font-weight:600;}
 
   /* News */
   .news-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;}
   .news-item{font-size:0.86rem;line-height:1.45;padding:10px 12px;background:rgba(243,234,216,0.06);border-left:2px solid var(--gold);border-radius:0 3px 3px 0;}
-  .truth-badge{display:inline-block;margin-top:6px;font-family:'IBM Plex Mono';font-size:0.72rem;color:var(--navy);background:var(--gold-light);padding:1px 7px;border-radius:10px;font-weight:600;}
-  .truth-locked{font-family:'IBM Plex Mono';font-size:0.72rem;color:rgba(243,234,216,0.45);}
+  .truth-badge{display:inline-block;margin-top:6px;font-family:var(--sub-font);font-size:0.72rem;color:var(--navy);background:var(--gold-light);padding:1px 7px;border-radius:10px;font-weight:600;}
+  .truth-locked{font-family:var(--sub-font);font-size:0.72rem;color:rgba(243,234,216,0.45);}
   .reveal-btn{margin-top:8px;padding:5px 11px;border:1px dashed rgba(228,200,120,0.5);background:transparent;color:var(--gold-light);font-family:var(--sub-font);font-weight:600;font-size:0.72rem;border-radius:4px;cursor:pointer;}
   .reveal-btn:hover:not(:disabled){background:rgba(228,200,120,0.1);}
   .reveal-btn:disabled{opacity:0.35;cursor:default;}
@@ -111,20 +111,27 @@
   @media (max-width:640px){.portfolio-bar{grid-template-columns:repeat(2,1fr);}}
   .pcard{background:var(--cream);border:1px solid var(--line);border-radius:4px;padding:10px 12px;}
   .pcard .plabel{font-size:0.66rem;text-transform:uppercase;letter-spacing:0.5px;color:#6b5a3a;font-family:var(--sub-font);}
-  .pcard .pval{font-family:'IBM Plex Mono';font-weight:600;font-size:0.98rem;color:var(--ink);}
+  .pcard .pval{font-family:var(--sub-font);font-weight:600;font-size:0.98rem;color:var(--ink);}
   .pcard.debt .pval{color:var(--tulip);}
 
   .section-block{margin-bottom:22px;padding-bottom:18px;border-bottom:1px dashed var(--line);}
   .section-block:last-of-type{border-bottom:none;}
   .section-title{font-family:var(--sub-font);font-weight:700;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.4px;color:var(--tulip-dark);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  .section-title.sticky-header{position:sticky;top:-1px;background:var(--paper);z-index:6;padding:10px 0 8px;margin:-2px 0 8px;border-bottom:1px solid var(--line);}
   .section-title .stepnum{background:var(--tulip-dark);color:white;width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:0.68rem;flex-shrink:0;}
+  .section-title .optional-tag{font-family:var(--sub-font);font-size:0.62rem;font-weight:600;text-transform:none;letter-spacing:0;color:#8a7a55;background:var(--cream);border:1px solid var(--line);border-radius:10px;padding:2px 8px;}
+  .section-title .decision-check{font-size:0.9rem;color:var(--green);}
   .section-hint{font-family:var(--sub-font);font-size:0.72rem;color:#8a7a55;margin-bottom:10px;}
+  .desk-pagetag{font-family:var(--sub-font);font-size:0.72rem;font-weight:700;color:var(--tulip-dark);text-transform:uppercase;letter-spacing:0.5px;margin:-4px 0 14px;}
+  .repay-locked{position:relative;}
+  .repay-locked .repay-blur-content{filter:blur(3px);opacity:0.5;pointer-events:none;user-select:none;}
+  .repay-locked .repay-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;font-family:var(--sub-font);font-size:0.85rem;color:#6b5a3a;font-weight:600;}
 
   .asset-row{display:grid;grid-template-columns:1.3fr 0.8fr 0.9fr 0.9fr auto auto;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);}
   .asset-row:last-child{border-bottom:none;}
   .asset-name{font-family:var(--sub-font);font-weight:700;font-size:0.84rem;}
-  .asset-sub{font-family:'IBM Plex Mono';font-size:0.72rem;color:#6b5a3a;}
-  .qty-input{width:76px;padding:6px 8px;border:1px solid var(--line);border-radius:4px;font-family:'IBM Plex Mono';font-size:0.82rem;}
+  .asset-sub{font-family:var(--sub-font);font-size:0.72rem;color:#6b5a3a;}
+  .qty-input{width:76px;padding:6px 8px;border:1px solid var(--line);border-radius:4px;font-family:var(--sub-font);font-size:0.82rem;}
   .mini-btn{padding:7px 12px;border-radius:4px;border:1px solid var(--tulip-dark);background:white;color:var(--tulip-dark);font-weight:600;cursor:pointer;font-size:0.76rem;font-family:var(--sub-font);white-space:nowrap;}
   .mini-btn.buy{background:var(--tulip-dark);color:white;}
   .mini-btn.sell{background:var(--green);color:white;border-color:var(--green);}
@@ -132,19 +139,19 @@
   .row-flex{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
 
   .loan-row{display:grid;grid-template-columns:auto 1fr auto auto auto;gap:10px;align-items:center;padding:9px 10px;border:1px solid var(--line);border-radius:4px;background:white;margin-bottom:8px;font-size:0.8rem;}
-  .loan-id{font-family:'IBM Plex Mono';font-weight:700;color:var(--tulip-dark);}
+  .loan-id{font-family:var(--sub-font);font-weight:700;color:var(--tulip-dark);}
   .loan-empty{padding:14px;text-align:center;color:#8a7a55;font-size:0.82rem;border:1px dashed var(--line);border-radius:4px;font-family:var(--sub-font);}
 
   .borrow-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
-  .borrow-btn{padding:8px 15px;border:1px solid var(--tulip-dark);border-radius:20px;background:transparent;color:var(--tulip-dark);font-family:'IBM Plex Mono';font-weight:600;cursor:pointer;font-size:0.82rem;}
+  .borrow-btn{padding:8px 15px;border:1px solid var(--tulip-dark);border-radius:20px;background:transparent;color:var(--tulip-dark);font-family:var(--sub-font);font-weight:600;cursor:pointer;font-size:0.82rem;}
   .borrow-btn.selected{background:var(--tulip-dark);color:var(--paper);}
   .borrow-btn:disabled{opacity:0.3;cursor:default;}
-  .borrow-summary{font-family:'IBM Plex Mono';font-size:0.78rem;color:#6b5a3a;margin-top:8px;line-height:1.6;}
+  .borrow-summary{font-family:var(--sub-font);font-size:0.78rem;color:#6b5a3a;margin-top:8px;line-height:1.6;}
   .confirm-btn{margin-top:10px;padding:9px 18px;border:none;border-radius:4px;background:var(--green);color:white;font-weight:600;cursor:pointer;font-size:0.85rem;font-family:var(--sub-font);}
   .confirm-btn:disabled{background:#9fae9f;cursor:default;}
 
   .decision-log{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;max-height:180px;overflow-y:auto;}
-  .decision-log li{font-family:'IBM Plex Mono';font-size:0.76rem;padding:6px 9px;background:var(--cream);border-radius:3px;}
+  .decision-log li{font-family:var(--sub-font);font-size:0.76rem;padding:6px 9px;background:var(--cream);border-radius:3px;}
   .decision-log.empty{font-family:var(--sub-font);color:#8a7a55;font-size:0.8rem;font-style:italic;}
 
   .actions-footer{margin-top:20px;display:flex;justify-content:flex-end;}
@@ -163,7 +170,7 @@
   .role-card.selected{border-color:var(--tulip-dark);background:#fbe9e7;}
   .role-card h3{font-family:'Fraunces',serif;font-size:1rem;margin:0 0 6px;}
   .role-card p{font-size:0.78rem;color:#6b5a3a;margin:0 0 4px;line-height:1.4;font-family:var(--sub-font);}
-  .role-card .stat-line{font-family:'IBM Plex Mono';font-size:0.68rem;color:#6b5a3a;display:block;margin-bottom:2px;}
+  .role-card .stat-line{font-family:var(--sub-font);font-size:0.68rem;color:#6b5a3a;display:block;margin-bottom:2px;}
   .role-card .cap-line{font-family:var(--sub-font);font-size:0.7rem;color:var(--tulip-dark);font-weight:700;margin-top:6px;}
   .big-btn{margin-top:12px;padding:12px 26px;background:var(--tulip-dark);color:white;border:none;border-radius:5px;font-weight:700;cursor:pointer;font-size:0.92rem;font-family:var(--sub-font);}
   .big-btn:disabled{background:#c7b9a9;cursor:default;}
@@ -178,20 +185,20 @@
   @media (max-width:640px){.final-stats{grid-template-columns:1fr;}}
   .final-stat{background:white;border:1px solid var(--line);border-radius:4px;padding:12px;}
   .final-stat .flabel{font-size:0.68rem;text-transform:uppercase;color:#6b5a3a;letter-spacing:0.4px;font-family:var(--sub-font);}
-  .final-stat .fval{font-family:'IBM Plex Mono';font-size:1.05rem;font-weight:700;}
+  .final-stat .fval{font-family:var(--sub-font);font-size:1.05rem;font-weight:700;}
   .fval.pos{color:var(--green);}
   .fval.neg{color:var(--tulip);}
 
   .score-block{margin:10px 0 18px;}
   .score-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;font-family:var(--sub-font);font-size:0.82rem;}
   .score-row .sname{font-weight:600;}
-  .score-row .sval{font-family:'IBM Plex Mono';font-weight:700;}
+  .score-row .sval{font-family:var(--sub-font);font-weight:700;}
   .score-bar-track{height:8px;border-radius:4px;background:var(--line);overflow:hidden;margin-bottom:12px;}
   .score-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--tulip-dark),var(--gold));}
   .score-note{font-family:var(--sub-font);font-size:0.72rem;color:#8a7a55;margin:-6px 0 12px;}
   .score-total{font-family:'Fraunces',serif;font-weight:700;font-size:1.5rem;color:var(--tulip-dark);text-align:center;margin:14px 0;}
 
-  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--navy);color:var(--gold-light);padding:10px 18px;border-radius:4px;font-size:0.85rem;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:opacity 0.3s, transform 0.3s;font-family:'IBM Plex Mono';z-index:100;max-width:90vw;}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--navy);color:var(--gold-light);padding:10px 18px;border-radius:4px;font-size:0.85rem;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:opacity 0.3s, transform 0.3s;font-family:var(--sub-font);z-index:100;max-width:90vw;}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(-6px);}
 
   /* ---------- SPLASH ---------- */
@@ -200,7 +207,7 @@
   @keyframes gridDrift{0%{background-position:0 0,0 0;}100%{background-position:42px 84px, 84px 42px;}}
 
   .ticker-row{position:absolute;top:0;left:0;right:0;overflow:hidden;background:rgba(228,200,120,0.06);border-bottom:1px solid rgba(228,200,120,0.15);padding:7px 0;z-index:1;}
-  .ticker-track{display:flex;gap:26px;white-space:nowrap;width:max-content;font-family:'IBM Plex Mono';font-size:0.72rem;color:rgba(228,200,120,0.55);animation:tickerScroll 32s linear infinite;}
+  .ticker-track{display:flex;gap:26px;white-space:nowrap;width:max-content;font-family:var(--sub-font);font-size:0.72rem;color:rgba(228,200,120,0.55);animation:tickerScroll 32s linear infinite;}
   .ticker-track span:nth-child(odd){color:rgba(76,122,92,0.75);}
   @keyframes tickerScroll{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
 
@@ -256,7 +263,7 @@
   .guide-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:22px;}
   @media (max-width:640px){.guide-grid{grid-template-columns:1fr;}}
   .guide-step{display:flex;gap:10px;align-items:flex-start;background:white;border:1px solid var(--line);border-radius:6px;padding:12px;}
-  .guide-step .gnum{font-family:'IBM Plex Mono';font-weight:700;font-size:0.8rem;color:var(--paper);background:var(--tulip-dark);width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .guide-step .gnum{font-family:var(--sub-font);font-weight:700;font-size:0.8rem;color:var(--paper);background:var(--tulip-dark);width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
   .guide-step p{margin:0;font-size:0.84rem;line-height:1.4;font-family:var(--sub-font);}
 </style>
 </head>
@@ -372,43 +379,46 @@
       <div class="desk">
         <h2 class="panel-title">Trading Desk</h2>
         <div class="portfolio-bar" id="portfolioBar"></div>
+        <div class="desk-pagetag" id="deskPageTag"></div>
 
-        <div class="section-block">
-          <div class="section-title"><span class="stepnum">1</span> Review existing loans</div>
-          <div id="loanList"></div>
+        <div id="deskPage1">
+          <div class="section-block">
+            <div class="section-title sticky-header"><span class="stepnum">1</span> Borrowing JPY <span class="decision-check" id="borrowCheck"></span></div>
+            <div class="section-hint">Choose a percentage of your Max JPY Principal to request this round, then confirm.</div>
+            <div id="borrowArea"></div>
+          </div>
+
+          <div class="section-block">
+            <div class="section-title sticky-header"><span class="stepnum">2</span> Buy / Deposit / Hold <span class="decision-check" id="buyCheck"></span></div>
+            <div class="section-hint">Deploy free cash into risk assets or park it in US Cash — or hold and confirm no action.</div>
+            <div id="buyDepositArea"></div>
+          </div>
+
+          <div class="actions-footer">
+            <button class="end-round-btn" id="toPage2Btn" disabled>Continue to Sell/Withdraw &amp; Repay</button>
+          </div>
         </div>
 
-        <div class="section-block">
-          <div class="section-title"><span class="stepnum">2</span> Sell / Withdraw</div>
-          <div class="section-hint">Free up cash before you repay or borrow.</div>
-          <div id="sellWithdrawArea"></div>
-        </div>
+        <div id="deskPage2" style="display:none;">
+          <div class="section-block">
+            <div class="section-title sticky-header"><span class="stepnum">3</span> Sell / Withdraw <span class="optional-tag">optional</span></div>
+            <div class="section-hint">Free up cash if you want it. This section can be skipped entirely.</div>
+            <div id="sellWithdrawArea"></div>
+          </div>
 
-        <div class="section-block">
-          <div class="section-title"><span class="stepnum">3</span> Repay existing loans</div>
-          <div class="section-hint">Full repayment only — principal plus accrued interest, in USD at today's rate.</div>
-          <div id="repayArea"></div>
-        </div>
+          <div class="section-block">
+            <div class="section-title sticky-header"><span class="stepnum">4</span> Repay Existing Loans</div>
+            <div id="repayWrap"></div>
+          </div>
 
-        <div class="section-block">
-          <div class="section-title"><span class="stepnum">4</span> Borrow JPY</div>
-          <div class="section-hint">Choose a percentage of your Max JPY Principal to request this round.</div>
-          <div id="borrowArea"></div>
-        </div>
+          <div class="section-block">
+            <div class="section-title">Review decisions</div>
+            <ul class="decision-log" id="decisionLog"></ul>
+          </div>
 
-        <div class="section-block">
-          <div class="section-title"><span class="stepnum">5</span> Buy / Deposit / Hold</div>
-          <div class="section-hint">Deploy free cash into risk assets or park it in US Cash.</div>
-          <div id="buyDepositArea"></div>
-        </div>
-
-        <div class="section-block">
-          <div class="section-title"><span class="stepnum">6</span> Review decisions</div>
-          <ul class="decision-log" id="decisionLog"></ul>
-        </div>
-
-        <div class="actions-footer">
-          <button class="end-round-btn" id="lockInBtn">Lock in round</button>
+          <div class="actions-footer">
+            <button class="end-round-btn" id="lockInBtn">Lock in moves</button>
+          </div>
         </div>
       </div>
     </div>
@@ -755,6 +765,9 @@ function startRound(idx){
   state.infoMaxThisRound = state.role.extraSignal ? 2 : 1;
   state.revealedIdxThisRound=new Set();
   state.roundLog=[];
+  state.deskPage=1;
+  state.roundFlags={ borrowDecided:false, buyDecided:false };
+  borrowPctSelected=0;
 
   const r=ROUNDS[idx];
   $('roundTag').textContent=r.label;
@@ -778,16 +791,37 @@ function startRound(idx){
   document.getElementById('coinSvg').classList.remove('wilted');
 
   renderNews(r);
-  renderLoans();
   renderSellWithdraw();
-  renderRepay();
+  renderRepayWrap();
   renderBorrow();
   renderBuyDeposit();
   renderDecisionLog();
   updatePortfolioBar();
   updateTopMetrics();
+  checkPage1Complete();
+  goToDeskPage(1);
 
+  $('toPage2Btn').onclick=()=>goToDeskPage(2);
   $('lockInBtn').onclick=()=>lockInRound();
+}
+
+function goToDeskPage(n){
+  state.deskPage=n;
+  $('deskPage1').style.display = n===1 ? 'block' : 'none';
+  $('deskPage2').style.display = n===2 ? 'block' : 'none';
+  $('deskPageTag').textContent = n===1
+    ? 'Step 1 of 2 — Borrow & deploy capital'
+    : 'Step 2 of 2 — Manage existing position';
+  if(n===2) renderRepayWrap();
+  const deskEl=document.querySelector('.desk');
+  if(deskEl) deskEl.scrollTop=0;
+}
+
+function checkPage1Complete(){
+  const done = state.roundFlags.borrowDecided && state.roundFlags.buyDecided;
+  $('toPage2Btn').disabled = !done;
+  $('borrowCheck').textContent = state.roundFlags.borrowDecided ? '✓' : '';
+  $('buyCheck').textContent = state.roundFlags.buyDecided ? '✓' : '';
 }
 
 function currentRound(){ return ROUNDS[state.roundIndex]; }
@@ -835,7 +869,8 @@ function refreshNewsUI(r, items){
       state.roundLog.push(`Paid ${fmtUSD(cost)} to reveal news reliability.`);
       refreshNewsUI(r, items);
       updatePortfolioBar(); updateTopMetrics(); renderDecisionLog();
-      renderSellWithdraw(); renderRepay(); renderBorrow(); renderBuyDeposit();
+      renderSellWithdraw(); renderRepayWrap(); renderBorrow(); renderBuyDeposit();
+      checkPage1Complete();
     };
   });
   $('newsCapNote').textContent = state.infoRevealedThisRound>=state.infoMaxThisRound
@@ -843,26 +878,6 @@ function refreshNewsUI(r, items){
     : `You may reveal ${state.infoMaxThisRound - state.infoRevealedThisRound} more piece(s) of information this round.`;
 }
 
-function renderLoans(){
-  const wrap=$('loanList');
-  if(state.loans.length===0){
-    wrap.innerHTML=`<div class="loan-empty">No open JPY loans.</div>`;
-    return;
-  }
-  const r=currentRound();
-  wrap.innerHTML='';
-  state.loans.forEach(l=>{
-    const {totalJPYDue, usdRequired} = Finance.repaymentQuote(l, r.usdjpy);
-    const row=document.createElement('div'); row.className='loan-row';
-    row.innerHTML=`
-      <span class="loan-id">#${l.id}</span>
-      <span class="mono">Opened R${l.openRound+1} · Principal ${fmtJPY(l.principal)} · Interest ${fmtJPY(l.accruedInterest)}</span>
-      <span class="mono">Due: ${fmtJPY(totalJPYDue)}</span>
-      <span class="mono">≈ ${fmtUSD(usdRequired)}</span>
-      <span></span>`;
-    wrap.appendChild(row);
-  });
-}
 
 function renderSellWithdraw(){
   const r=currentRound();
@@ -924,11 +939,23 @@ function doWithdraw(){
   toast(`Withdrew ${fmtUSD(amt)} from US Cash.`);
 }
 
-function renderRepay(){
+function renderRepayWrap(){
   const r=currentRound();
-  const wrap=$('repayArea');
+  const wrap=$('repayWrap');
   if(state.loans.length===0){
-    wrap.innerHTML=`<div class="loan-empty">No loans to repay.</div>`;
+    wrap.innerHTML=`
+      <div class="repay-locked">
+        <div class="repay-blur-content">
+          <div class="loan-row">
+            <span class="loan-id">#—</span>
+            <span class="mono">No outstanding principal</span>
+            <span class="mono">—</span>
+            <button class="mini-btn" disabled>Repay in full</button>
+            <span></span>
+          </div>
+        </div>
+        <div class="repay-overlay">No outstanding JPY loans this round — nothing to repay.</div>
+      </div>`;
     return;
   }
   wrap.innerHTML='';
@@ -938,9 +965,9 @@ function renderRepay(){
     const row=document.createElement('div'); row.className='loan-row';
     row.innerHTML=`
       <span class="loan-id">#${l.id}</span>
-      <span class="mono">Total due ${fmtJPY(totalJPYDue)} ≈ ${fmtUSD(usdRequired)}</span>
-      <span class="mono">${canRepay?'Sufficient cash':'Insufficient cash'}</span>
-      <button class="mini-btn" ${canRepay?'':'disabled'} data-id="${l.id}">Repay in full</button>
+      <span class="mono">Opened R${l.openRound+1} · Principal ${fmtJPY(l.principal)} · Interest ${fmtJPY(l.accruedInterest)} · Due ${fmtJPY(totalJPYDue)}</span>
+      <span class="mono">≈ ${fmtUSD(usdRequired)}</span>
+      <button class="mini-btn" ${canRepay?'':'disabled'} data-id="${l.id}" title="${canRepay?'':'Insufficient Free Cash'}">Repay in full</button>
       <span></span>`;
     row.querySelector('button').onclick=()=>doRepay(l.id);
     wrap.appendChild(row);
@@ -967,6 +994,11 @@ let borrowPctSelected=0;
 function renderBorrow(){
   const r=currentRound();
   const wrap=$('borrowArea');
+  if(state.roundFlags && state.roundFlags.borrowDecided){
+    const loanThisRound = state.loans.find(l=>l.openRound===state.roundIndex);
+    wrap.innerHTML = `<div class="section-hint" style="color:var(--green);font-weight:600;">✓ Borrow decision locked for this round${loanThisRound?`: borrowed ${fmtJPY(loanThisRound.principal)} (loan #${loanThisRound.id}).`:' — chose not to borrow.'}</div>`;
+    return;
+  }
   const steps=[0,0.25,0.5,0.75,1.0];
   const btnRow=document.createElement('div'); btnRow.className='borrow-row';
   steps.forEach(pct=>{
@@ -983,8 +1015,7 @@ function renderBorrow(){
     Remaining capacity: ${fmtJPY(q.remaining)}<br>
     Would be accepted: ${fmtJPY(q.accepted)} → credited ${fmtUSD(q.borrowedUSD)} to Free Cash
   `;
-  const btn=document.createElement('button'); btn.className='confirm-btn'; btn.textContent='Confirm borrow';
-  btn.disabled = q.accepted<=0;
+  const btn=document.createElement('button'); btn.className='confirm-btn'; btn.textContent='Confirm borrowing decision';
   btn.onclick=()=>doBorrow();
   wrap.innerHTML=''; wrap.appendChild(btnRow); wrap.appendChild(summary); wrap.appendChild(btn);
 }
@@ -992,11 +1023,15 @@ function renderBorrow(){
 function doBorrow(){
   const r=currentRound();
   const q = Finance.quoteBorrow(borrowPctSelected, state.role, r.usdjpy, state.loans);
-  if(q.accepted<=0){ toast('No borrowing capacity available at this percentage.'); return; }
-  const loan = { id:state.nextLoanId++, openRound:state.roundIndex, principal:q.accepted, accruedInterest:0, usdjpyAtOpen:r.usdjpy };
-  state.loans.push(loan);
-  state.freeCash += q.borrowedUSD;
-  state.roundLog.push(`Borrowed ${fmtJPY(q.accepted)} (loan #${loan.id}) → +${fmtUSD(q.borrowedUSD)} Free Cash`);
+  if(q.accepted>0){
+    const loan = { id:state.nextLoanId++, openRound:state.roundIndex, principal:q.accepted, accruedInterest:0, usdjpyAtOpen:r.usdjpy };
+    state.loans.push(loan);
+    state.freeCash += q.borrowedUSD;
+    state.roundLog.push(`Borrowed ${fmtJPY(q.accepted)} (loan #${loan.id}) → +${fmtUSD(q.borrowedUSD)} Free Cash`);
+  } else {
+    state.roundLog.push('Chose not to borrow JPY this round.');
+  }
+  state.roundFlags.borrowDecided = true;
   borrowPctSelected=0;
   refreshAllPanels();
   toast(`Borrowed ${fmtJPY(q.accepted)}.`);
@@ -1005,33 +1040,46 @@ function doBorrow(){
 function renderBuyDeposit(){
   const r=currentRound();
   const wrap=$('buyDepositArea');
+  const locked = state.roundFlags && state.roundFlags.buyDecided;
   wrap.innerHTML=`
     <div class="asset-row">
       <div><div class="asset-name">US Tech</div><div class="asset-sub">Price ${fmtUSD(r.techPrice)}</div></div>
       <div class="asset-sub">Held: ${state.holdings.tech}</div>
-      <input type="number" min="0" step="1" class="qty-input" id="buyTechQty" placeholder="qty">
-      <button class="mini-btn buy" id="buyTechBtn">Buy</button>
+      <input type="number" min="0" step="1" class="qty-input" id="buyTechQty" placeholder="qty" ${locked?'disabled':''}>
+      <button class="mini-btn buy" id="buyTechBtn" ${locked?'disabled':''}>Buy</button>
       <span></span><span></span>
     </div>
     <div class="asset-row">
       <div><div class="asset-name">S&amp;P 500</div><div class="asset-sub">Price ${fmtUSD(r.spPrice)}</div></div>
       <div class="asset-sub">Held: ${state.holdings.sp}</div>
-      <input type="number" min="0" step="1" class="qty-input" id="buySPQty" placeholder="qty">
-      <button class="mini-btn buy" id="buySPBtn">Buy</button>
+      <input type="number" min="0" step="1" class="qty-input" id="buySPQty" placeholder="qty" ${locked?'disabled':''}>
+      <button class="mini-btn buy" id="buySPBtn" ${locked?'disabled':''}>Buy</button>
       <span></span><span></span>
     </div>
     <div class="asset-row">
       <div><div class="asset-name">US Cash</div><div class="asset-sub">Balance ${fmtUSD(state.usCashBalance)}</div></div>
       <div class="asset-sub">Earns ${(r.usCashReturn*100).toFixed(1)}% this round</div>
-      <input type="number" min="0" step="1" class="qty-input" id="depositQty" placeholder="amt">
-      <button class="mini-btn buy" id="depositBtn">Deposit</button>
+      <input type="number" min="0" step="1" class="qty-input" id="depositQty" placeholder="amt" ${locked?'disabled':''}>
+      <button class="mini-btn buy" id="depositBtn" ${locked?'disabled':''}>Deposit</button>
       <span></span><span></span>
     </div>
-    <div class="section-hint" style="margin-top:8px;">Free Cash available now: <strong class="mono">${fmtUSD(state.freeCash)}</strong>. Holding a position with no action taken is always allowed.</div>
+    <div class="section-hint" style="margin-top:8px;">Free Cash available now: <strong class="mono">${fmtUSD(state.freeCash)}</strong>.</div>
+    ${locked
+      ? `<div class="section-hint" style="color:var(--green);font-weight:600;">✓ Buy/Deposit decision locked for this round.</div>`
+      : `<button class="confirm-btn" id="confirmBuyBtn">Confirm buy/deposit decision (or Hold)</button>`}
   `;
+  if(locked) return;
   $('buyTechBtn').onclick=()=>doBuy('tech');
   $('buySPBtn').onclick=()=>doBuy('sp');
   $('depositBtn').onclick=()=>doDeposit();
+  $('confirmBuyBtn').onclick=()=>{
+    if(!state.roundLog.some(l=>l.startsWith('Bought') || l.startsWith('Deposited'))){
+      state.roundLog.push('Chose to hold — no buy or deposit this round.');
+    }
+    state.roundFlags.buyDecided = true;
+    refreshAllPanels();
+    toast('Buy/Deposit decision locked.');
+  };
 }
 
 function doBuy(asset){
@@ -1073,12 +1121,12 @@ function renderDecisionLog(){
 }
 
 function refreshAllPanels(){
-  renderLoans();
   renderSellWithdraw();
-  renderRepay();
+  renderRepayWrap();
   renderBorrow();
   renderBuyDeposit();
   renderDecisionLog();
+  checkPage1Complete();
   updatePortfolioBar();
   updateTopMetrics();
 }
