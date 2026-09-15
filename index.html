@@ -59,6 +59,61 @@
   .status-pill.AT_RISK{background:rgba(200,155,60,0.25);color:var(--gold-light);border:1px solid rgba(228,200,120,0.6);}
   .status-pill.BANKRUPT{background:rgba(184,52,46,0.3);color:#f0a29c;border:1px solid rgba(184,52,46,0.7);}
 
+  .roundtimer{font-family:var(--sub-font);font-size:1rem;font-weight:700;color:var(--cream);background:rgba(184,52,46,0.18);border:1px solid rgba(184,52,46,0.55);padding:4px 12px;border-radius:3px;min-width:64px;text-align:center;}
+  .roundtimer.low{background:rgba(184,52,46,0.55);animation:timerPulse 1s infinite;}
+  @keyframes timerPulse{0%,100%{opacity:1;}50%{opacity:0.55;}}
+  .music-btn{font-family:var(--sub-font);font-size:0.76rem;font-weight:600;color:var(--gold-light);background:transparent;border:1px solid rgba(228,200,120,0.4);border-radius:20px;padding:6px 12px;cursor:pointer;}
+  .music-btn:hover{background:rgba(228,200,120,0.1);}
+
+  /* Persistent background fx (visible behind every stage) */
+  .bg-fx{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;background:var(--navy);}
+  .bg-fx .bg-orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:0.16;animation:bgOrbDrift 22s ease-in-out infinite;}
+  .bg-fx .bg-orb1{width:420px;height:420px;top:-10%;left:-8%;background:radial-gradient(circle, var(--gold-light), transparent 70%);}
+  .bg-fx .bg-orb2{width:380px;height:380px;bottom:-12%;right:-6%;background:radial-gradient(circle, var(--tulip), transparent 70%);animation-delay:6s;}
+  .bg-fx .bg-orb3{width:300px;height:300px;top:40%;left:60%;background:radial-gradient(circle, var(--stem), transparent 70%);animation-delay:12s;}
+  @keyframes bgOrbDrift{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(30px,-20px) scale(1.12);}}
+  .bg-fx .bg-grid{position:absolute;inset:-10%;background-image:linear-gradient(rgba(228,200,120,0.04) 1px, transparent 1px),linear-gradient(90deg, rgba(228,200,120,0.04) 1px, transparent 1px);background-size:46px 46px;animation:bgGridDrift 26s linear infinite;}
+  @keyframes bgGridDrift{0%{background-position:0 0,0 0;}100%{background-position:46px 92px, 92px 46px;}}
+
+  .flash-update{animation:flashPulse 0.7s ease;}
+  @keyframes flashPulse{0%{background:rgba(228,200,120,0.55);}100%{background:transparent;}}
+
+  .stage.active .split, .stage.active .center-card{animation:stageIn 0.45s ease;}
+  @keyframes stageIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+  .market-update-overlay{position:fixed;inset:0;background:rgba(10,10,20,0.82);display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;z-index:120;}
+  .market-update-overlay.show{display:flex;}
+  .market-update-overlay .mu-coin{width:64px;height:64px;animation:muSpin 0.7s linear infinite;}
+  @keyframes muSpin{from{transform:rotateY(0deg);}to{transform:rotateY(360deg);}}
+  .market-update-overlay .mu-text{font-family:var(--sub-font);color:var(--gold-light);font-weight:700;letter-spacing:0.4px;font-size:0.95rem;}
+
+  /* News type badges */
+  .news-headline{font-weight:700;display:block;margin-bottom:3px;}
+  .type-badge{display:inline-block;margin-top:6px;font-family:var(--sub-font);font-size:0.72rem;font-weight:700;padding:2px 9px;border-radius:10px;}
+  .type-badge.positive{background:rgba(76,122,92,0.3);color:#a9e0bb;}
+  .type-badge.negative{background:rgba(184,52,46,0.3);color:#f0a29c;}
+  .type-badge.mixed{background:rgba(200,155,60,0.3);color:var(--gold-light);}
+  .type-badge.neutral{background:rgba(243,234,216,0.16);color:rgba(243,234,216,0.8);}
+  .type-badge.rumor{background:transparent;border:1px dashed rgba(228,200,120,0.55);color:var(--gold-light);}
+  .type-badge.noise{background:rgba(243,234,216,0.08);color:rgba(243,234,216,0.5);}
+  .type-badge.secondary{background:rgba(62,98,89,0.35);color:#bcdcd3;}
+
+  /* Well / improved feedback lists */
+  .wi-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0;}
+  @media (max-width:640px){.wi-grid{grid-template-columns:1fr;}}
+  .wi-col h4{margin:0 0 8px;font-family:var(--sub-font);font-weight:700;font-size:0.88rem;}
+  .wi-col.well h4{color:var(--green);}
+  .wi-col.improve h4{color:var(--tulip);}
+  .wi-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;}
+  .wi-list li{font-size:0.82rem;line-height:1.45;padding:8px 10px;border-radius:0 4px 4px 0;font-family:var(--sub-font);}
+  .wi-col.well li{background:#eef6ef;border-left:3px solid var(--green);}
+  .wi-col.improve li{background:#fbe9e7;border-left:3px solid var(--tulip);}
+
+  .lesson-block{margin:14px 0;padding:18px 20px;border:1px solid var(--gold);border-radius:6px;background:linear-gradient(135deg, #fbf1de, #f3e6c8);}
+  .lesson-block h4{margin:0 0 8px;font-family:var(--sub-font);font-weight:700;font-size:0.95rem;color:var(--tulip-dark);}
+  .lesson-block .archetype{font-family:'Fraunces',serif;font-weight:700;font-size:1.1rem;color:var(--tulip-dark);margin-bottom:6px;}
+  .lesson-block .quote{font-family:'Fraunces',serif;font-style:italic;font-size:0.98rem;line-height:1.55;margin-top:10px;border-top:1px dashed rgba(126,33,29,0.3);padding-top:10px;}
+
   /* ---------- LAYOUT ---------- */
   .stage{display:none;}
   .stage.active{display:block;}
@@ -268,6 +323,18 @@
 </style>
 </head>
 <body>
+<div class="bg-fx" aria-hidden="true">
+  <div class="bg-orb bg-orb1"></div>
+  <div class="bg-orb bg-orb2"></div>
+  <div class="bg-orb bg-orb3"></div>
+  <div class="bg-grid"></div>
+</div>
+
+<div class="market-update-overlay" id="marketUpdateOverlay">
+  <svg class="mu-coin" viewBox="0 0 120 120"><circle cx="60" cy="60" r="46" fill="var(--gold)" stroke="var(--gold-light)" stroke-width="3"/><text x="60" y="76" text-anchor="middle" font-size="42" font-family="Georgia, serif" font-weight="700" fill="var(--navy)">¥</text></svg>
+  <div class="mu-text">Updating markets…</div>
+</div>
+
 <div class="app">
 
   <div class="topbar" id="topbar" style="display:none;">
@@ -276,7 +343,9 @@
       <span class="sub">Phase III — The JPY Carry Trade</span>
     </div>
     <div class="status">
+      <button class="music-btn" id="musicToggleBtn">🔊 Music</button>
       <button class="howto-topbtn" id="topHowtoBtn">How to play</button>
+      <div class="roundtimer" id="roundTimer" style="display:none;">5:00</div>
     </div>
     <div class="roundtag" id="roundTag">Setup</div>
     <div class="topmetrics" id="topMetrics"></div>
@@ -334,7 +403,7 @@
   <div class="stage" id="stage-roles">
     <div class="center-card">
       <h1>Choose your role</h1>
-      <div class="tag">Each role sets your capital base, your JPY borrowing ceiling, and the price of information.</div>
+      <div class="tag">Every role starts with $0 cash. Your role sets your lifetime JPY borrowing ceiling and the price of information.</div>
       <div class="role-grid" id="roleGrid"></div>
       <button class="big-btn" id="rolesNextBtn" disabled>Confirm role</button>
     </div>
@@ -368,6 +437,7 @@
         </div>
 
         <div class="macro-grid" id="macroGrid"></div>
+        <div class="news-cap-note" id="macroNote" style="margin-bottom:14px;font-style:italic;"></div>
 
         <div class="indicators" id="indicatorsWrap"></div>
 
@@ -434,14 +504,9 @@
     <div class="center-card" id="settlementCard"></div>
   </div>
 
-  <!-- FINAL RESULT -->
+  <!-- FINAL RESULT & DEBRIEF -->
   <div class="stage" id="stage-final">
-    <div class="center-card" id="finalCard"></div>
-  </div>
-
-  <!-- DEBRIEF (EDUCATIONAL) -->
-  <div class="stage" id="stage-fulldebrief">
-    <div class="center-card" id="fullDebriefCard"></div>
+    <div class="center-card" id="finalCard" style="max-width:820px;"></div>
   </div>
 
 </div>
@@ -450,14 +515,14 @@
 <div class="modal-overlay" id="guideModal">
   <div class="center-card guide-card">
     <h1>How to play — JPY Carry Trade</h1>
-    <div class="tag">4 rounds. Borrow yen at near-zero rates, hold risk assets funded by the spread, and survive the unwind.</div>
+    <div class="tag">4 rounds, 5 minutes each. You start with $0 — borrowing JPY is your only source of investable capital.</div>
     <div class="guide-grid">
-      <div class="guide-step"><span class="gnum">1</span><p>Each round opens with market news and BOJ / FX data. Paying for a reveal shows how reliable one story is.</p></div>
-      <div class="guide-step"><span class="gnum">2</span><p>Review any open JPY loans — principal and accrued interest are tracked separately per loan.</p></div>
-      <div class="guide-step"><span class="gnum">3</span><p>Sell assets or withdraw US Cash first if you need liquidity.</p></div>
-      <div class="guide-step"><span class="gnum">4</span><p>Repay a loan in full if you have the USD cash for it — no partial repayments.</p></div>
-      <div class="guide-step"><span class="gnum">5</span><p>Borrow JPY as a % of your role's cap, then buy US Tech, S&amp;P 500, or deposit into US Cash.</p></div>
-      <div class="guide-step"><span class="gnum">6</span><p>After round 4, everything is auto-liquidated and all yen debt is settled at the final rate.</p></div>
+      <div class="guide-step"><span class="gnum">1</span><p>Each round opens with 3 market news stories plus Liquidity, Speculation and Confidence indicators. Pay to reveal a story's type (Signal, Rumor, Noise…) if you want more clarity.</p></div>
+      <div class="guide-step"><span class="gnum">2</span><p>Borrow JPY as a 25% / 50% / 75% / 100% package of your role's lifetime cap. Borrowing never resets between rounds — once your packages add up to 100%, you cannot borrow more, even after repaying a loan.</p></div>
+      <div class="guide-step"><span class="gnum">3</span><p>Buy US Tech, S&amp;P 500, or deposit into US Cash with whatever Free Cash borrowing has given you — or hold and confirm no action.</p></div>
+      <div class="guide-step"><span class="gnum">4</span><p>On the next page, optionally sell holdings or withdraw US Cash for liquidity, and repay any open loan in full if you can afford it — no partial repayments.</p></div>
+      <div class="guide-step"><span class="gnum">5</span><p>Lock in your moves before the 5-minute clock runs out. Each loan accrues its own floating interest at that round's BOJ rate.</p></div>
+      <div class="guide-step"><span class="gnum">6</span><p>After round 4, everything is auto-liquidated and all JPY debt is settled at the final rate. Your Final Evaluation splits Investment P&amp;L from Funding P&amp;L and scores Financial Performance, Risk Management and Decision Quality.</p></div>
     </div>
     <button class="big-btn" id="guideCloseBtn">Got it</button>
   </div>
@@ -476,80 +541,144 @@ const ROLES = {
   conservative:{
     key:'conservative', name:'Conservative Investor',
     maxUSD:80000, maxJPY:12000000, infoCost:200, extraSignal:false,
-    desc:'Smallest capital base and the tightest JPY ceiling. Wins by staying liquid and solvent.'
+    desc:'Smallest lifetime JPY borrowing cap. You start with $0 — wins by staying liquid and solvent.'
   },
   hunter:{
     key:'hunter', name:'Information Hunter',
     maxUSD:100000, maxJPY:15000000, infoCost:100, extraSignal:true,
-    desc:'Cheapest information and an extra signal per round. Wins by knowing more than the room.'
+    desc:'Cheapest information and 2 reveals per round. You start with $0 — wins by knowing more than the room.'
   },
   speculator:{
     key:'speculator', name:'Speculator',
     maxUSD:120000, maxJPY:18000000, infoCost:300, extraSignal:false,
-    desc:'Largest capital base and the highest JPY ceiling. Highest information cost. Wins big or loses big.'
+    desc:'Largest lifetime JPY borrowing cap. You start with $0 — wins big or loses big.'
   }
 };
 
 const IND_LABELS = {
-  speculation:'Speculation — bubble risk & FOMO',
   liquidity:'Liquidity — ease of exiting positions',
-  confidence:'Confidence — market optimism'
+  speculation:'Speculation — bubble risk & FOMO',
+  confidence:'Market Confidence — investor optimism'
 };
+
+// News item "tone" -> badge color class
+const TONE_CLASS = { positive:'positive', negative:'negative', mixed:'mixed', neutral:'neutral', rumor:'rumor', noise:'noise', secondary:'secondary' };
 
 // Each round: BOJ funding rate (annual), USDJPY spot, US Tech & S&P 500 prices (USD),
 // US Cash return for the round (defensive asset only), plus narration/news/indicators.
+// Values sourced from the Phase III scenario README: JPY rate/FX table, asset price table,
+// and per-round market indicator scores.
 const ROUNDS = [
   {
-    id:1, label:'Round 1 — The Build-Up', months:6,
-    bojRate:0.0025, usdjpy:105, techPrice:100, spPrice:100, usCashReturn:0.015,
-    narration:"The Bank of Japan holds its policy rate near zero. Borrowing yen is historically cheap, and funds are starting to fund higher-yielding positions abroad with it.",
-    indicators:{ speculation:35, liquidity:80, confidence:62 },
+    id:1, label:'Round 1 — Calm Market / Carry Trade Boom', months:6,
+    bojRate:0.001, usdjpy:155, techPrice:450, spPrice:520, usCashReturn:0.045,
+    macroNote:"BOJ holds its policy rate at a low base of 0–0.1%; the yen continues to serve as the market's primary funding currency.",
+    narration:"Calm markets and a wide rate gap are drawing money into the yen carry trade. The Bank of Japan holds its policy rate near zero, and speculative positioning is already elevated even as confidence stays high.",
+    indicators:{ liquidity:90, speculation:95, confidence:85 },
     news:[
-      {text:"The Bank of Japan has held its policy rate near zero for years, keeping yen funding costs historically low.", truth:95},
-      {text:"A growing number of leveraged funds are reportedly opening yen-funded positions to capture the rate spread.", truth:60},
-      {text:"Rumors suggest a major central bank could surprise markets with a rate move within days.", truth:null},
-      {text:"The Fed funds rate remains well above BOJ policy, keeping the JPY funding spread wide for now.", truth:90, hunterOnly:true}
+      {emoji:'💻', headline:'AI Infrastructure Boom', text:"US data-center operators are accelerating investment in new facilities as demand for AI computing capacity continues to grow. Several semiconductor and cloud companies announce plans to expand production and infrastructure capacity.", implication:"AI demand ↑ → semiconductor/cloud revenue expectations ↑ → US Tech potentially ↑", type:'Positive Signal', tone:'positive'},
+      {emoji:'🏦', headline:'Flight to Quality', text:"Several large institutional investors report increasing allocations to high-quality government securities as they seek greater portfolio stability amid growing uncertainty in global markets.", implication:"Demand for safe assets ↑ → a rising preference for quality/cash-like holdings", type:'Neutral', tone:'neutral'},
+      {emoji:'🛢', headline:'Middle East Escalation', text:"Military tensions escalate in the Middle East, raising concerns about disruptions to regional oil production and shipping routes. Several energy companies warn that prolonged disruptions could affect global supply.", implication:"Supply disruption risk ↑ → oil prices potentially ↑ → second-order effects on inflation/corporate costs", type:'Mixed Signal', tone:'mixed'}
     ]
   },
   {
-    id:2, label:'Round 2 — Carry Trade Nirvana', months:6,
-    bojRate:0.005, usdjpy:115, techPrice:118, spPrice:112, usCashReturn:0.02,
-    narration:"Implied volatility on the yen has fallen to multi-year lows. Leveraged carry positions look safer than ever, and that calm is pulling in far more capital.",
-    indicators:{ speculation:68, liquidity:85, confidence:88 },
+    id:2, label:'Round 2 — Early Warning', months:6,
+    bojRate:0.001, usdjpy:160, techPrice:500, spPrice:560, usCashReturn:0.055,
+    macroNote:"USD/JPY touches a weak peak near 160; rumors begin to circulate that the BOJ may intervene.",
+    narration:"Cracks are forming beneath the surface. Currency-intervention rumors swirl, speculative carry positioning is being trimmed at the margin, and confidence has slipped from its highs even as headline conditions still look stable.",
+    indicators:{ liquidity:70, speculation:60, confidence:60 },
     news:[
-      {text:"Implied volatility on the yen has fallen to multi-year lows, making leveraged carry positions look unusually safe.", truth:80},
-      {text:"Hedge funds are reportedly increasing carry trade exposure to record levels on the low-volatility backdrop.", truth:55},
-      {text:"Some strategists warn that a crowded trade like this can unwind violently if sentiment turns — few expect that this quarter.", truth:null},
-      {text:"BOJ officials signal any policy normalization will be gradual, with no rate shock expected this year.", truth:70, hunterOnly:true}
+      {emoji:'💴', headline:'BOJ Intervention Rumor', text:"Japanese financial media report that authorities are closely monitoring recent movements in the currency market. Some market participants speculate that officials could take action if market conditions become excessive.", type:'Rumor', tone:'rumor'},
+      {emoji:'📊', headline:'Analyst Forecasts', text:"Analysts expect US companies to focus mainly on maintenance and replacement investment, while moderate consumer demand continues to support steady business activity.", type:'Neutral', tone:'neutral'},
+      {emoji:'🛍', headline:'Moderate Consumer Demand', text:"Recent reports from major retailers suggest that consumer spending remains moderate, with households continuing to spend but becoming more selective in their purchases.", type:'Neutral', tone:'neutral'}
     ]
   },
   {
-    id:3, label:'Round 3 — Cracks Appear', months:6,
-    bojRate:0.0075, usdjpy:108, techPrice:110, spPrice:105, usCashReturn:0.012,
-    narration:"Credit markets abroad are showing real stress. The yen has started strengthening unexpectedly, and buyers for carry positions are getting harder to find.",
-    indicators:{ speculation:82, liquidity:45, confidence:58 },
+    id:3, label:'Round 3 — Carry Trade Unwind / Market Crash', months:6,
+    bojRate:0.0025, usdjpy:142.0, techPrice:388, spPrice:515, usCashReturn:0.07,
+    macroNote:"The BOJ officially raises its policy rate to 0.25%; the yen appreciates sharply and abruptly.",
+    narration:"The unwind is here. The Bank of Japan has hiked its policy rate and the yen is appreciating sharply. Liquidity has thinned, speculative appetite has collapsed, and confidence has cratered alongside falling risk assets.",
+    indicators:{ liquidity:40, speculation:15, confidence:15 },
     news:[
-      {text:"US mortgage-credit defaults are rising sharply, raising fears of a broader risk-off move that hits carry trades hardest.", truth:75},
-      {text:"A major bank calls the disruption 'contained' and says any unwind, if it happens, will be gradual rather than sudden.", truth:20},
-      {text:"The yen has strengthened against several currencies in recent weeks, a pattern traders associate with early-stage carry unwinds.", truth:80},
-      {text:"BOJ meeting minutes show growing internal debate over whether to hike further into the turmoil.", truth:55, hunterOnly:true}
+      {emoji:'🏦', headline:'BOJ Raises Rates', text:"The Bank of Japan raises its policy rate to 0.25%, citing higher inflation and continued increases in wages and prices. The BOJ indicates that further rate hikes may follow if inflation remains elevated and economic conditions continue to develop as expected.", type:'Major Signal', tone:'negative'},
+      {emoji:'🏛', headline:'Fed Holds Rates', text:"The Federal Reserve keeps its policy rate unchanged despite inflation continuing to ease toward its 2% target, which would normally support a rate cut. However, the recent increase in the unemployment rate raises concerns about the labor market.", type:'Mixed Signal', tone:'mixed'},
+      {emoji:'🏭', headline:'US Manufacturing Weakness', text:"A survey of US manufacturers shows a decline in new orders, fueling concerns about weakening industrial activity. However, companies report that existing orders remain relatively stable.", type:'Noise', tone:'noise'}
     ]
   },
   {
-    id:4, label:'Round 4 — The Unwind', months:6,
-    bojRate:0.005, usdjpy:90, techPrice:60, spPrice:70, usCashReturn:0.008,
-    narration:"Global deleveraging accelerates. Leveraged funds are forced to close carry positions all at once, and the yen surges as the trade unwinds.",
-    indicators:{ speculation:92, liquidity:25, confidence:30 },
+    id:4, label:'Round 4 — Market Recovery', months:6,
+    bojRate:0.0025, usdjpy:146.5, techPrice:445, spPrice:545, usCashReturn:0.04,
+    macroNote:"The BOJ signals a pause in further tightening; the exchange rate recovers toward a technical equilibrium.",
+    narration:"Markets stabilize. The BOJ signals patience on further hikes, forced deleveraging fades, and risk assets recover — though positioning remains far more cautious than before the crash.",
+    indicators:{ liquidity:85, speculation:30, confidence:75 },
     news:[
-      {text:"Several large financial institutions report severe liquidity strains over the past week.", truth:90},
-      {text:"Officials say the strain is contained to a handful of isolated firms.", truth:15},
-      {text:"Leveraged funds report forced unwinding of carry positions as margin calls hit across the board.", truth:88},
-      {text:"BOJ signals emergency coordination with other central banks to stabilize funding markets.", truth:70, hunterOnly:true}
+      {emoji:'🕊', headline:'BOJ Signals Patience', text:"BOJ officials signal that further rate increases will be approached cautiously, with financial-market stability taken into account when considering future policy moves.", type:'Positive / Major Signal', tone:'positive'},
+      {emoji:'📉', headline:'Margin Calls Force Deleveraging', text:"Following the sharp market decline, leveraged investors face margin calls and begin reducing leverage and closing positions. Many remain cautious about rebuilding large positions until markets stabilize.", type:'Second-order Signal', tone:'secondary'},
+      {emoji:'🛒', headline:'US Consumer Spending Surges', text:"US retail sales rose 1.0% in July, far exceeding expectations and signaling resilient consumer demand.", type:'Positive Signal', tone:'positive'}
     ]
   }
 ];
 
 const ASSET_LABELS = { tech:'US Tech', sp:'S&P 500' };
+const ROUND_SECONDS = 300; // 5 minutes per round
+
+/* ---------------- AUDIO (self-contained, synthesized — no external files) ---------------- */
+const Audio1 = (function(){
+  let ctx=null, masterGain=null, ambientNodes=[], enabled=true, started=false;
+  function ensureCtx(){
+    if(!ctx){
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if(!AC) return null;
+      ctx = new AC();
+      masterGain = ctx.createGain();
+      masterGain.gain.value = enabled ? 0.05 : 0;
+      masterGain.connect(ctx.destination);
+    }
+    if(ctx.state==='suspended') ctx.resume();
+    return ctx;
+  }
+  function startAmbient(){
+    if(started || !ensureCtx()) return;
+    started=true;
+    const freqs=[130.81,164.81,196.00]; // soft C3-E3-G3 triad
+    freqs.forEach((f,i)=>{
+      const osc=ctx.createOscillator();
+      osc.type='sine';
+      osc.frequency.value=f;
+      const g=ctx.createGain();
+      g.gain.value=0.02;
+      osc.connect(g); g.connect(masterGain);
+      osc.start();
+      const lfo=ctx.createOscillator();
+      lfo.frequency.value=0.05+i*0.015;
+      const lfoGain=ctx.createGain();
+      lfoGain.gain.value=0.015;
+      lfo.connect(lfoGain);
+      lfoGain.connect(g.gain);
+      lfo.start();
+      ambientNodes.push(osc,lfo);
+    });
+  }
+  function toggle(){
+    enabled=!enabled;
+    if(masterGain) masterGain.gain.value = enabled?0.05:0;
+    return enabled;
+  }
+  function blip(freq, dur, type){
+    if(!ctx) return;
+    const o=ctx.createOscillator(); const g=ctx.createGain();
+    o.type=type||'triangle'; o.frequency.value=freq||660;
+    o.connect(g); g.connect(masterGain);
+    const t=ctx.currentTime;
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.exponentialRampToValueAtTime(0.18,t+0.015);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+(dur||0.16));
+    o.start(t); o.stop(t+(dur||0.16)+0.03);
+  }
+  function chime(){ blip(660,0.14); setTimeout(()=>blip(880,0.18),110); }
+  function alarm(){ blip(220,0.22,'sawtooth'); setTimeout(()=>blip(180,0.28,'sawtooth'),160); }
+  return { ensureCtx, startAmbient, toggle, blip, chime, alarm, isEnabled:()=>enabled };
+})();
 
 /* ---------------- FINANCE ENGINE (pure functions) ---------------- */
 const Finance = {
@@ -562,15 +691,18 @@ const Finance = {
   outstandingTotalDue(loans){
     return loans.reduce((s,l)=>s+l.principal+l.accruedInterest,0);
   },
-  remainingCapacity(role, usdjpy, loans){
-    return Math.max(0, this.effectiveMaxJPY(role, usdjpy) - this.outstandingPrincipal(loans));
+  // Borrowing cap is CUMULATIVE and lifetime: it tracks every JPY ever borrowed
+  // across all 4 rounds, and never resets or frees up when a loan is repaid.
+  remainingCapacity(role, usdjpy, cumulativeBorrowed){
+    return Math.max(0, this.effectiveMaxJPY(role, usdjpy) - cumulativeBorrowed);
   },
-  quoteBorrow(pct, role, usdjpy, loans){
+  quoteBorrow(pct, role, usdjpy, cumulativeBorrowed){
     const requested = pct * role.maxJPY;
-    const remaining = this.remainingCapacity(role, usdjpy, loans);
+    const remaining = this.remainingCapacity(role, usdjpy, cumulativeBorrowed);
     const accepted = Math.min(requested, remaining);
     const borrowedUSD = usdjpy>0 ? accepted/usdjpy : 0;
-    return { requested, remaining, accepted, borrowedUSD };
+    const exceededCap = requested > remaining + 1e-6;
+    return { requested, remaining, accepted, borrowedUSD, exceededCap };
   },
   accrueLoanInterest(loan, bojRateAnnual, months){
     return loan.principal * bojRateAnnual * (months/12);
@@ -611,12 +743,15 @@ function newState(role){
   return {
     role,
     roundIndex: 0,               // 0..3 => Round 1..4
-    freeCash: role.maxUSD,       // starting Free Cash = Max USD Equivalent
+    freeCash: 0,                 // players start with $0 USD — JPY borrowing is the only funding source
     holdings: { tech:0, sp:0 },
     usCashBalance: 0,
     loans: [],                   // {id, openRound, principal, accruedInterest, usdjpyAtOpen}
     closedLoans: [],             // metrics recorded at repay/settlement time
     nextLoanId: 1,
+    cumulativeBorrowed: 0,       // JPY, lifetime — the cap that never resets or frees up on repayment
+    totalBorrowedUSD: 0,         // USD credited from every borrow action ("Total USD Funding Used")
+    borrowedByRound: [0,0,0,0],  // USD borrowed per round index, for debt-timing analysis
     infoRevealedThisRound: 0,
     infoMaxThisRound: 1,
     revealedIdxThisRound: new Set(),
@@ -628,10 +763,13 @@ function newState(role){
     totalUSCashInterest:0,
     roundLog: [],                // this round's action log (strings)
     perRoundSnapshots: [],       // after each round's market close
-    initialWealth: role.maxUSD,
+    initialWealth: 0,
     bankrupt:false,
     invalidAttempts:0,
-    roundsWithAction:0
+    roundsWithAction:0,
+    secondsLeft: ROUND_SECONDS,
+    timerId: null,
+    timerPaused: false
   };
 }
 
@@ -656,11 +794,17 @@ function toast(msg){
 }
 
 /* ---------------- GUIDE MODAL ---------------- */
-function openGuide(){ $('guideModal').classList.add('show'); }
-function closeGuide(){ $('guideModal').classList.remove('show'); }
+function openGuide(){ $('guideModal').classList.add('show'); if(state) state.timerPaused=true; }
+function closeGuide(){ $('guideModal').classList.remove('show'); if(state) state.timerPaused=false; }
 $('guideCloseBtn').onclick=closeGuide;
 $('splashHowtoBtn').onclick=openGuide;
 $('topHowtoBtn').onclick=openGuide;
+
+/* ---------------- MUSIC TOGGLE ---------------- */
+$('musicToggleBtn').onclick=()=>{
+  const on = Audio1.toggle();
+  $('musicToggleBtn').textContent = on ? '🔊 Music' : '🔇 Music';
+};
 
 /* ---------------- DECOR (splash) ---------------- */
 (function initPetals(){
@@ -696,10 +840,10 @@ function renderRoles(){
     const card=document.createElement('div');
     card.className='role-card'; card.dataset.role=r.key;
     card.innerHTML=`<h3>${r.name}</h3><p>${r.desc}</p>
-      <span class="stat-line">Max USD Equivalent: ${fmtUSD(r.maxUSD)}</span>
-      <span class="stat-line">Max JPY Principal: ${fmtJPY(r.maxJPY)}</span>
+      <span class="stat-line">Max lifetime JPY borrowing: ${fmtJPY(r.maxJPY)}</span>
+      <span class="stat-line">USD-equivalent cross-cap: ${fmtUSD(r.maxUSD)}</span>
       <span class="stat-line">Information cost: ${fmtUSD(r.infoCost)}${r.extraSignal?' (2 reveals/round)':''}</span>
-      <div class="cap-line">Starting Free Cash: ${fmtUSD(r.maxUSD)}</div>`;
+      <div class="cap-line">Starting Free Cash: $0 — borrow JPY to fund your first trade</div>`;
     card.onclick=()=>{
       document.querySelectorAll('.role-card').forEach(c=>c.classList.remove('selected'));
       card.classList.add('selected');
@@ -711,7 +855,10 @@ function renderRoles(){
 }
 renderRoles();
 
-$('splashStartBtn').onclick=()=>{ $('topbar').style.display='flex'; $('roundTag').textContent='Choose role'; showStage('stage-roles'); };
+$('splashStartBtn').onclick=()=>{
+  Audio1.ensureCtx(); Audio1.startAmbient();
+  $('topbar').style.display='flex'; $('roundTag').textContent='Choose role'; showStage('stage-roles');
+};
 $('rolesNextBtn').onclick=()=>{
   const role = ROLES[pendingRoleKey];
   state = newState(role);
@@ -726,12 +873,12 @@ function renderConfirm(role){
     <h1>${role.name}</h1>
     <div class="tag">Role confirmed. Review your starting position before entering Round 1.</div>
     <div class="final-stats">
-      <div class="final-stat"><div class="flabel">Starting Free Cash</div><div class="fval">${fmtUSD(state.freeCash)}</div></div>
-      <div class="final-stat"><div class="flabel">Max JPY Principal</div><div class="fval">${fmtJPY(role.maxJPY)}</div></div>
-      <div class="final-stat"><div class="flabel">Max USD Equivalent</div><div class="fval">${fmtUSD(role.maxUSD)}</div></div>
+      <div class="final-stat"><div class="flabel">Starting Free Cash</div><div class="fval">$0</div></div>
+      <div class="final-stat"><div class="flabel">Max Lifetime JPY Borrowing</div><div class="fval">${fmtJPY(role.maxJPY)}</div></div>
+      <div class="final-stat"><div class="flabel">USD-Equivalent Cross-Cap</div><div class="fval">${fmtUSD(role.maxUSD)}</div></div>
       <div class="final-stat"><div class="flabel">Information cost / reveal</div><div class="fval">${fmtUSD(role.infoCost)}</div></div>
     </div>
-    <p>You will play 4 rounds. Each round you can review and repay JPY loans, sell or withdraw assets, borrow fresh JPY against your role's cap, and buy US Tech, S&amp;P 500, or deposit to US Cash. After Round 4, everything is auto-settled at the final market rate.</p>
+    <p>You start with <strong>$0</strong> — borrowing JPY is your only source of investable capital. Your borrowing cap is a <strong>lifetime total</strong> spread across all 4 rounds in fixed 25%/50%/75%/100% packages: once your packages add up to 100% of your cap, you cannot borrow more, even if you've since repaid a loan. Each round you can borrow, buy US Tech / S&amp;P 500 / US Cash, then optionally sell, withdraw, or repay a loan in full. After Round 4, everything is auto-settled at the final market rate.</p>
     <button class="big-btn" id="confirmNextBtn">Begin Phase III</button>
   `;
   $('confirmNextBtn').onclick=()=>{ renderBriefing(0); showStage('stage-briefing'); };
@@ -745,13 +892,18 @@ function renderBriefing(idx){
   const card=$('briefingCard');
   card.innerHTML=`
     <h1>${r.label}</h1>
-    <div class="tag">Round briefing — ${r.months} months elapse this round.</div>
+    <div class="tag">Round briefing — ${r.months} months elapse this round · 5:00 on the clock once you proceed.</div>
     <p>${r.narration}</p>
+    <p style="font-family:var(--sub-font);font-size:0.85rem;color:#6b5a3a;font-style:italic;">${r.macroNote}</p>
     <div class="final-stats">
       <div class="final-stat"><div class="flabel">USDJPY spot</div><div class="fval">${r.usdjpy.toFixed(2)}</div></div>
       <div class="final-stat"><div class="flabel">BOJ funding rate (annual)</div><div class="fval">${(r.bojRate*100).toFixed(2)}%</div></div>
       <div class="final-stat"><div class="flabel">US Tech price</div><div class="fval">${fmtUSD(r.techPrice)}</div></div>
       <div class="final-stat"><div class="flabel">S&amp;P 500 price</div><div class="fval">${fmtUSD(r.spPrice)}</div></div>
+    </div>
+    <div class="final-stats">
+      <div class="final-stat"><div class="flabel">Liquidity</div><div class="fval">${r.indicators.liquidity}/100</div></div>
+      <div class="final-stat"><div class="flabel">Speculation</div><div class="fval">${r.indicators.speculation}/100</div></div>
     </div>
     <button class="big-btn" id="briefingNextBtn">Proceed to market</button>
   `;
@@ -779,6 +931,7 @@ function startRound(idx){
     <div class="macro-cell"><div class="mlabel">US Tech</div><div class="mval">${fmtUSD(r.techPrice)}</div></div>
     <div class="macro-cell"><div class="mlabel">S&amp;P 500</div><div class="mval">${fmtUSD(r.spPrice)}</div></div>
   `;
+  $('macroNote').textContent = r.macroNote;
 
   const indWrap=$('indicatorsWrap'); indWrap.innerHTML='';
   Object.entries(r.indicators).forEach(([k,v])=>{
@@ -800,9 +953,53 @@ function startRound(idx){
   updateTopMetrics();
   checkPage1Complete();
   goToDeskPage(1);
+  startTimer();
 
   $('toPage2Btn').onclick=()=>goToDeskPage(2);
   $('lockInBtn').onclick=()=>lockInRound();
+}
+
+/* ---------------- ROUND TIMER (5 minutes) ---------------- */
+function startTimer(){
+  clearInterval(state.timerId);
+  state.secondsLeft = ROUND_SECONDS;
+  state.timerPaused = false;
+  const el=$('roundTimer');
+  el.style.display='block';
+  updateTimerDisplay();
+  state.timerId = setInterval(()=>{
+    if(state.timerPaused) return;
+    state.secondsLeft--;
+    updateTimerDisplay();
+    if(state.secondsLeft<=0){
+      clearInterval(state.timerId);
+      onTimeExpired();
+    }
+  },1000);
+}
+function stopTimer(){
+  clearInterval(state.timerId);
+  $('roundTimer').style.display='none';
+}
+function updateTimerDisplay(){
+  const el=$('roundTimer');
+  const m=Math.floor(state.secondsLeft/60), s=state.secondsLeft%60;
+  el.textContent = `${m}:${s.toString().padStart(2,'0')}`;
+  el.classList.toggle('low', state.secondsLeft<=30);
+}
+function onTimeExpired(){
+  toast("Time's up — remaining moves lock in automatically.");
+  Audio1.alarm();
+  if(!state.roundFlags.borrowDecided) doBorrow();
+  if(!state.roundFlags.buyDecided){
+    if(!state.roundLog.some(l=>l.startsWith('Bought') || l.startsWith('Deposited'))){
+      state.roundLog.push('Chose to hold — no buy or deposit this round.');
+    }
+    state.roundFlags.buyDecided = true;
+    refreshAllPanels();
+  }
+  goToDeskPage(2);
+  lockInRound();
 }
 
 function goToDeskPage(n){
@@ -827,7 +1024,7 @@ function checkPage1Complete(){
 function currentRound(){ return ROUNDS[state.roundIndex]; }
 
 function visibleNews(r){
-  return r.news.filter(n => !n.hunterOnly || state.role.extraSignal);
+  return r.news;
 }
 
 function renderNews(r){
@@ -847,13 +1044,15 @@ function refreshNewsUI(r, items){
     const revealed = state.revealedIdxThisRound.has(i);
     let badge;
     if(revealed){
-      badge = n.truth!==null ? `<div class="truth-badge">${n.truth}% likely true</div>` : `<div class="truth-locked">No verified rating — pure rumor</div>`;
+      const toneClass = TONE_CLASS[n.tone] || 'neutral';
+      const implicationLine = (state.role.extraSignal && n.implication) ? `<div class="asset-sub" style="margin-top:5px;">↳ ${n.implication}</div>` : '';
+      badge = `<span class="type-badge ${toneClass}">${n.type}</span>${implicationLine}`;
     } else if(state.infoRevealedThisRound >= state.infoMaxThisRound){
-      badge = `<div class="truth-locked">Reliability not purchased this round</div>`;
+      badge = `<div class="truth-locked">Type not purchased this round</div>`;
     } else {
-      badge = `<button class="reveal-btn" data-idx="${i}">Reveal reliability — ${fmtUSD(state.role.infoCost)}</button>`;
+      badge = `<button class="reveal-btn" data-idx="${i}">Reveal type — ${fmtUSD(state.role.infoCost)}</button>`;
     }
-    li.innerHTML = `${n.text}${badge}`;
+    li.innerHTML = `<span class="news-headline">${n.emoji||''} ${n.headline}</span>${n.text}${badge}`;
   });
   document.querySelectorAll('.reveal-btn').forEach(btn=>{
     btn.onclick=()=>{
@@ -866,7 +1065,8 @@ function refreshNewsUI(r, items){
       state.infoRevealedThisRound++;
       state.totalInfoRevealsUsed++;
       state.revealedIdxThisRound.add(idx);
-      state.roundLog.push(`Paid ${fmtUSD(cost)} to reveal news reliability.`);
+      state.roundLog.push(`Paid ${fmtUSD(cost)} to reveal news type.`);
+      Audio1.blip(760,0.1);
       refreshNewsUI(r, items);
       updatePortfolioBar(); updateTopMetrics(); renderDecisionLog();
       renderSellWithdraw(); renderRepayWrap(); renderBorrow(); renderBuyDeposit();
@@ -923,7 +1123,7 @@ function doSell(asset){
   state.freeCash+=proceeds;
   if(asset==='tech') state.totalTechSellProceeds+=proceeds; else state.totalSPSellProceeds+=proceeds;
   state.roundLog.push(`Sold ${qty} ${ASSET_LABELS[asset]} @ ${fmtUSD(price)} = ${fmtUSD(proceeds)}`);
-  state.roundsWithAction = state.roundsWithAction; // no-op marker, incremented on lock-in
+  Audio1.blip(420,0.1);
   refreshAllPanels();
   toast(`Sold ${qty} ${ASSET_LABELS[asset]}.`);
 }
@@ -986,6 +1186,7 @@ function doRepay(loanId){
   state.closedLoans.push({...l, closedRound:state.roundIndex, usdjpyAtClose:r.usdjpy, ...metrics});
   state.loans.splice(idx,1);
   state.roundLog.push(`Repaid loan #${l.id} in full: ${fmtJPY(totalJPYDue)} ≈ ${fmtUSD(usdRequired)}`);
+  Audio1.chime();
   refreshAllPanels();
   toast(`Loan #${l.id} repaid in full.`);
 }
@@ -1001,19 +1202,22 @@ function renderBorrow(){
   }
   const steps=[0,0.25,0.5,0.75,1.0];
   const btnRow=document.createElement('div'); btnRow.className='borrow-row';
+  const remainingNow = Finance.remainingCapacity(state.role, r.usdjpy, state.cumulativeBorrowed);
   steps.forEach(pct=>{
     const b=document.createElement('button');
     b.className='borrow-btn'+(borrowPctSelected===pct?' selected':'');
     b.textContent=(pct*100)+'%';
+    if(pct>0 && remainingNow<=0) b.disabled=true;
     b.onclick=()=>{ borrowPctSelected=pct; renderBorrow(); };
     btnRow.appendChild(b);
   });
-  const q = Finance.quoteBorrow(borrowPctSelected, state.role, r.usdjpy, state.loans);
+  const q = Finance.quoteBorrow(borrowPctSelected, state.role, r.usdjpy, state.cumulativeBorrowed);
   const summary=document.createElement('div'); summary.className='borrow-summary';
   summary.innerHTML=`
-    Requested: ${fmtJPY(q.requested)}<br>
-    Remaining capacity: ${fmtJPY(q.remaining)}<br>
+    Lifetime borrowed so far: ${fmtJPY(state.cumulativeBorrowed)} of ${fmtJPY(state.role.maxJPY)} cap (remaining ${fmtJPY(q.remaining)})<br>
+    Requested this round: ${fmtJPY(q.requested)}<br>
     Would be accepted: ${fmtJPY(q.accepted)} → credited ${fmtUSD(q.borrowedUSD)} to Free Cash
+    ${q.exceededCap ? '<br><span style="color:var(--tulip);">This package exceeds your remaining lifetime capacity — it will be clamped to what\'s left.</span>' : ''}
   `;
   const btn=document.createElement('button'); btn.className='confirm-btn'; btn.textContent='Confirm borrowing decision';
   btn.onclick=()=>doBorrow();
@@ -1022,19 +1226,24 @@ function renderBorrow(){
 
 function doBorrow(){
   const r=currentRound();
-  const q = Finance.quoteBorrow(borrowPctSelected, state.role, r.usdjpy, state.loans);
+  const q = Finance.quoteBorrow(borrowPctSelected, state.role, r.usdjpy, state.cumulativeBorrowed);
+  if(q.exceededCap){ state.invalidAttempts++; }
   if(q.accepted>0){
     const loan = { id:state.nextLoanId++, openRound:state.roundIndex, principal:q.accepted, accruedInterest:0, usdjpyAtOpen:r.usdjpy };
     state.loans.push(loan);
     state.freeCash += q.borrowedUSD;
+    state.cumulativeBorrowed += q.accepted;
+    state.totalBorrowedUSD += q.borrowedUSD;
+    state.borrowedByRound[state.roundIndex] += q.borrowedUSD;
     state.roundLog.push(`Borrowed ${fmtJPY(q.accepted)} (loan #${loan.id}) → +${fmtUSD(q.borrowedUSD)} Free Cash`);
+    Audio1.blip(520,0.12);
   } else {
     state.roundLog.push('Chose not to borrow JPY this round.');
   }
   state.roundFlags.borrowDecided = true;
   borrowPctSelected=0;
   refreshAllPanels();
-  toast(`Borrowed ${fmtJPY(q.accepted)}.`);
+  toast(q.accepted>0 ? `Borrowed ${fmtJPY(q.accepted)}.` : 'No JPY borrowed this round.');
 }
 
 function renderBuyDeposit(){
@@ -1094,6 +1303,7 @@ function doBuy(asset){
   state.holdings[asset]+=qty;
   if(asset==='tech') state.totalTechBuyCost+=cost; else state.totalSPBuyCost+=cost;
   state.roundLog.push(`Bought ${qty} ${ASSET_LABELS[asset]} @ ${fmtUSD(price)} = ${fmtUSD(cost)}`);
+  Audio1.blip(560,0.1);
   refreshAllPanels();
   toast(`Bought ${qty} ${ASSET_LABELS[asset]}.`);
 }
@@ -1140,6 +1350,13 @@ function updatePortfolioBar(){
     <div class="pcard"><div class="plabel">US Cash Balance</div><div class="pval">${fmtUSD(state.usCashBalance)}</div></div>
     <div class="pcard debt"><div class="plabel">Gross Portfolio Value</div><div class="pval">${fmtUSD(gross)}</div></div>
   `;
+  flashPanel($('portfolioBar'));
+}
+function flashPanel(el){
+  if(!el) return;
+  el.classList.remove('flash-update');
+  void el.offsetWidth;
+  el.classList.add('flash-update');
 }
 
 function updateTopMetrics(){
@@ -1158,10 +1375,12 @@ function updateTopMetrics(){
     <div class="tm"><span class="tlabel">Net Wealth</span><span class="tval ${nw>=0?'pos':'neg'}">${fmtUSD(nw)}</span></div>
     <div class="tm"><span class="tlabel">Status</span><span class="status-pill ${status}">${status.replace('_',' ')}</span></div>
   `;
+  flashPanel($('topMetrics'));
 }
 
 /* ---------------- MARKET CLOSE / LOCK-IN ---------------- */
 function lockInRound(){
+  stopTimer();
   const r=currentRound();
   if(state.roundLog.length>0) state.roundsWithAction++;
 
@@ -1176,23 +1395,37 @@ function lockInRound(){
   state.usCashBalance += interestEarned;
   state.totalUSCashInterest += interestEarned;
 
+  const techValue = state.holdings.tech*r.techPrice;
+  const spValue = state.holdings.sp*r.spPrice;
+  const investedTotal = techValue + spValue;
   const gross = Finance.grossPortfolioValue(state.freeCash, state.holdings.tech, r.techPrice, state.holdings.sp, r.spPrice, state.usCashBalance);
   const debtMTM = Finance.usdDebtMTM(state.loans, r.usdjpy);
   const netWealthVal = Finance.netWealth(gross, debtMTM);
   const status = Finance.status(netWealthVal, false);
+  const effCap = Finance.effectiveMaxJPY(state.role, r.usdjpy);
 
   const snapshot = {
     round: state.roundIndex, gross, debtMTM, netWealth: netWealthVal, status,
     usCashInterest: interestEarned,
-    riskAssetShare: gross>0 ? (state.holdings.tech*r.techPrice + state.holdings.sp*r.spPrice)/gross : 0,
+    freeCashAtClose: state.freeCash, usCashAtClose: state.usCashBalance,
+    techValue, spValue,
+    riskAssetShare: gross>0 ? investedTotal/gross : 0,
     liquidityRatio: gross>0 ? (state.freeCash + state.usCashBalance)/gross : 0,
-    debtUtilization: Finance.effectiveMaxJPY(state.role, r.usdjpy)>0 ? Finance.outstandingPrincipal(state.loans)/Finance.effectiveMaxJPY(state.role, r.usdjpy) : 0,
+    debtExposurePct: gross>0 ? debtMTM/gross : 0,
+    largestAssetWeight: investedTotal>0 ? Math.max(techValue,spValue)/investedTotal : 0,
+    liquidityCoverage: debtMTM>0 ? (state.freeCash + state.usCashBalance)/debtMTM : null,
+    debtUtilization: effCap>0 ? Finance.outstandingPrincipal(state.loans)/effCap : 0,
+    cumulativeBorrowedSoFar: state.cumulativeBorrowed,
     actionsThisRound: [...state.roundLog]
   };
   state.perRoundSnapshots.push(snapshot);
 
-  renderRoundDebrief(r, snapshot);
-  showStage('stage-debrief');
+  $('marketUpdateOverlay').classList.add('show');
+  setTimeout(()=>{
+    $('marketUpdateOverlay').classList.remove('show');
+    renderRoundDebrief(r, snapshot);
+    showStage('stage-debrief');
+  }, 900);
 }
 
 function renderRoundDebrief(r, snap){
@@ -1212,12 +1445,14 @@ function renderRoundDebrief(r, snap){
     feedback.push(`US Cash earned ${fmtUSD(snap.usCashInterest)} this round.`);
   }
   feedback.push(`Net Wealth at market close: ${fmtUSD(snap.netWealth)} (${snap.status.replace('_',' ')}).`);
+  feedback.push(`Lifetime JPY borrowed so far: ${fmtJPY(snap.cumulativeBorrowedSoFar)} of ${fmtJPY(state.role.maxJPY)} cap.`);
 
+  Audio1.chime();
   const isLastRound = state.roundIndex >= ROUNDS.length-1;
   const card=$('debriefCard');
   card.innerHTML=`
     <h1>${r.label} — Market Close</h1>
-    <div class="tag">Speculation ${r.indicators.speculation} · Liquidity ${r.indicators.liquidity} · Confidence ${r.indicators.confidence}</div>
+    <div class="tag">Liquidity ${r.indicators.liquidity} · Speculation ${r.indicators.speculation} · Confidence ${r.indicators.confidence}</div>
     <div class="debrief-block"><h4>Your round</h4><ul class="feedback-list">${feedback.map(f=>`<li>${f}</li>`).join('')}</ul></div>
     <div class="final-stats">
       <div class="final-stat"><div class="flabel">Gross Portfolio Value</div><div class="fval">${fmtUSD(snap.gross)}</div></div>
@@ -1302,147 +1537,268 @@ function renderSettlement(){
   $('settlementNextBtn').onclick=()=>{ renderFinal(); showStage('stage-final'); };
 }
 
-/* ---------------- FINAL RESULT & SCORING ---------------- */
+/* ---------------- FINAL RESULT & SCORING (per Final Evaluation spec) ---------------- */
 function computeBreakdown(){
   let totalFxPnL=0, totalInterestCost=0;
   state.closedLoans.forEach(cl=>{
     totalFxPnL += cl.fxPnL;
     totalInterestCost += cl.interestCost;
   });
-  const investmentPnL = (state.totalTechSellProceeds - state.totalTechBuyCost)
-                       + (state.totalSPSellProceeds - state.totalSPBuyCost)
-                       + state.totalUSCashInterest;
+  const techPnL = state.totalTechSellProceeds - state.totalTechBuyCost;
+  const spPnL = state.totalSPSellProceeds - state.totalSPBuyCost;
+  const investmentPnL = techPnL + spPnL + state.totalUSCashInterest;
   const fundingPnL = totalFxPnL - totalInterestCost;
   const netPnL = investmentPnL + fundingPnL - state.totalInfoCost;
-  return { investmentPnL, fundingPnL, totalFxPnL, totalInterestCost, netPnL };
+  return { techPnL, spPnL, investmentPnL, fundingPnL, totalFxPnL, totalInterestCost, netPnL };
 }
 
-function computeScore(finalWealth, netPnL){
-  // Financial Performance (50 pts) — based on Net P&L return on Initial Player Wealth
-  const ret = netPnL / state.initialWealth;
-  const financial = clamp(25 + ret*50, 0, 50);
+// ---- Scoring lookup tables (bands from the Final Evaluation, P&L Breakdown & Scoring spec) ----
+function scoreFinancialPerformance(netPnL){
+  if(state.bankrupt) return 0;
+  if(state.totalBorrowedUSD<=0) return 32; // never borrowed -> nothing happened -> treat as 0% return
+  const r = (netPnL/state.totalBorrowedUSD)*100;
+  if(r>=20) return 50;
+  if(r>=15) return 47;
+  if(r>=10) return 44;
+  if(r>=7.5) return 41;
+  if(r>=5) return 38;
+  if(r>=2.5) return 35;
+  if(r>=0) return 32;
+  if(r>=-2.5) return 28;
+  if(r>=-5) return 24;
+  if(r>=-10) return 20;
+  if(r>=-15) return 15;
+  if(r>=-20) return 10;
+  return 5;
+}
+function scoreLiquidityCoverage(coverage){
+  if(coverage===null) return 10; // no debt outstanding -> no liquidity risk
+  if(coverage>=1.50) return 10;
+  if(coverage>=1.30) return 9;
+  if(coverage>=1.20) return 8;
+  if(coverage>=1.10) return 7;
+  if(coverage>=1.00) return 6;
+  if(coverage>=0.90) return 4;
+  if(coverage>=0.75) return 2;
+  return 0;
+}
+function scoreDebtExposure(pctFraction){
+  if(state.bankrupt) return 0;
+  const p = pctFraction*100;
+  if(p<=30) return 10;
+  if(p<=40) return 9;
+  if(p<=50) return 8;
+  if(p<=60) return 7;
+  if(p<=70) return 6;
+  if(p<=80) return 5;
+  if(p<=90) return 4;
+  if(p<=100) return 3;
+  return 1;
+}
+function scorePortfolioConcentration(pctFraction){
+  const p = pctFraction*100;
+  if(p<=40) return 10;
+  if(p<=50) return 9;
+  if(p<=60) return 8;
+  if(p<=70) return 6;
+  if(p<=80) return 4;
+  if(p<=90) return 2;
+  return 0;
+}
+function scoreCapitalEfficiency(idleRatio){
+  const p = idleRatio*100;
+  if(p<=10) return 5;
+  if(p<=20) return 4;
+  if(p<=30) return 3;
+  if(p<=40) return 2;
+  if(p<=50) return 1;
+  return 0;
+}
+function scoreDebtTiming(){
+  if(state.bankrupt) return {score:0,label:'Default caused by poor debt management'};
+  const crashRoundBorrow = state.borrowedByRound[2] || 0; // Round 3 = index 2, the unwind/crash round
+  const frac = state.totalBorrowedUSD>0 ? crashRoundBorrow/state.totalBorrowedUSD : 0;
+  if(frac<=0) return {score:5,label:'Debt consistently used efficiently'};
+  if(frac<=0.15) return {score:4,label:'One minor inefficient debt decision'};
+  if(frac<=0.35) return {score:3,label:'Some unnecessary debt exposure'};
+  if(frac<=0.6) return {score:2,label:'Repeated inefficient borrowing'};
+  return {score:1,label:'Severe over-borrowing'};
+}
+function scoreInfoUse(){
+  const used = state.totalInfoRevealsUsed, avail = state.totalInfoRevealsAvailable;
+  if(used===0) return state.bankrupt
+    ? {score:2,label:'Weak use of purchased information'}
+    : {score:4,label:'Information used reasonably'};
+  const ratio = used/Math.max(1,avail);
+  if(ratio<=0.6) return {score:5,label:'Information used effectively'};
+  if(ratio<=0.8) return {score:4,label:'Information used reasonably'};
+  if(ratio<=1.0) return {score:3,label:'Limited strategic response'};
+  return {score:2,label:'Repeated unnecessary purchase'};
+}
+function scoreActionDiscipline(invalid){
+  if(invalid<=0) return 5;
+  if(invalid===1) return 4;
+  if(invalid===2) return 3;
+  if(invalid===3) return 2;
+  if(invalid===4) return 1;
+  return 0;
+}
 
-  // Risk Management (30 pts): Liquidity, Debt Exposure, Position Risk (10 each)
+function computeScore(netPnL){
   const snaps = state.perRoundSnapshots;
-  const minLiquidity = snaps.length ? Math.min(...snaps.map(s=>s.liquidityRatio)) : 0;
-  const liquidityScore = clamp(minLiquidity*20, 0, 10);
+  const finalSnap = snaps[snaps.length-1] || { liquidityCoverage:null, debtExposurePct:0, largestAssetWeight:0, freeCashAtClose:0 };
 
-  const peakUtilLate = snaps.length>=3 ? Math.max(snaps[2].debtUtilization, snaps[snaps.length-1]?.debtUtilization||0) : (snaps.length?Math.max(...snaps.map(s=>s.debtUtilization)):0);
-  const debtExposureScore = clamp((1-peakUtilLate)*10, 0, 10);
+  const financial = clamp(scoreFinancialPerformance(netPnL), 0, 50);
 
-  const riskShareBeforeUnwind = snaps.length>=3 ? snaps[2].riskAssetShare : (snaps.length?snaps[snaps.length-1].riskAssetShare:0);
-  const positionRiskScore = clamp((1-riskShareBeforeUnwind)*10, 0, 10);
-
+  const liquidityScore = scoreLiquidityCoverage(finalSnap.liquidityCoverage);
+  const debtExposureScore = scoreDebtExposure(finalSnap.debtExposurePct);
+  const positionRiskScore = scorePortfolioConcentration(finalSnap.largestAssetWeight);
   const risk = liquidityScore + debtExposureScore + positionRiskScore;
 
-  // Decision Quality (20 pts): Capital Efficiency, Debt Timing, Info Use, Action Discipline (5 each)
-  const avgDebtUtil = snaps.length ? snaps.reduce((s,x)=>s+x.debtUtilization,0)/snaps.length : 0;
-  const capitalEfficiency = clamp(avgDebtUtil*10, 0, 5); // used borrowed capacity productively rather than staying unlevered the whole game
-
-  const lastSnap = snaps[snaps.length-1];
-  const debtTiming = clamp((1-(lastSnap?lastSnap.debtUtilization:0))*5, 0, 5); // rewarded for de-risking debt into the unwind
-
-  const infoUseRatio = state.totalInfoRevealsAvailable>0 ? state.totalInfoRevealsUsed/state.totalInfoRevealsAvailable : 0;
-  const infoUse = clamp(infoUseRatio*5, 0, 5);
-
-  const actionDiscipline = clamp(5 - state.invalidAttempts*0.75, 0, 5);
-
-  const decision = capitalEfficiency + debtTiming + infoUse + actionDiscipline;
+  const idleRatio = state.totalBorrowedUSD>0 ? Math.max(0,finalSnap.freeCashAtClose)/state.totalBorrowedUSD : 0;
+  const capitalEfficiency = scoreCapitalEfficiency(idleRatio);
+  const debtTimingRes = scoreDebtTiming();
+  const infoUseRes = scoreInfoUse();
+  const actionDiscipline = scoreActionDiscipline(state.invalidAttempts);
+  const decision = capitalEfficiency + debtTimingRes.score + infoUseRes.score + actionDiscipline;
 
   const total = clamp(financial + risk + decision, 0, 100);
 
   return {
     financial, liquidityScore, debtExposureScore, positionRiskScore, risk,
-    capitalEfficiency, debtTiming, infoUse, actionDiscipline, decision,
-    total
+    capitalEfficiency, debtTiming:debtTimingRes.score, debtTimingLabel:debtTimingRes.label,
+    infoUse:infoUseRes.score, infoUseLabel:infoUseRes.label, actionDiscipline, decision,
+    total, finalSnap
   };
+}
+
+function buildFeedback(breakdown, score){
+  const finalSnap = score.finalSnap;
+  const well=[], improve=[];
+  const everDepositedUSCash = state.perRoundSnapshots.some(s=>s.usCashAtClose>0);
+
+  if(score.debtExposureScore>=8) well.push('You reduced JPY debt exposure and limited floating interest cost.');
+  if(score.liquidityScore>=6) well.push('You maintained enough liquidity to meet repayment obligations.');
+  if(everDepositedUSCash) well.push('You used US Cash to reduce portfolio risk.');
+  if(score.positionRiskScore>=8) well.push('Your portfolio was relatively diversified across available assets.');
+  if(state.totalInfoRevealsUsed>0 && score.infoUse>=4) well.push('You used available information to support a relevant decision.');
+
+  if(score.positionRiskScore<=6) improve.push('Your portfolio had high concentration in one risky asset, increasing market risk.');
+  if(score.debtExposureScore<=6) improve.push('Your strategy maintained high JPY debt exposure, increasing FX and funding risk.');
+  if(finalSnap.liquidityCoverage!==null && finalSnap.liquidityCoverage<1.0) improve.push('Your repayment liquidity was limited. A larger liquidity buffer could reduce default risk.');
+  if(state.totalInfoCost>0 && score.infoUse<=2) improve.push('Information cost reduced Net P&L without materially improving the strategy.');
+  if(state.bankrupt) improve.push('Available liquidity was insufficient to meet the required debt repayment.');
+
+  if(well.length===0) well.push('You completed all 4 rounds without a payment default.');
+  if(improve.length===0) improve.push('No major risk-management weaknesses were flagged this run.');
+  return { well, improve };
+}
+
+function deriveArchetype(netPnL, score){
+  if(state.bankrupt){
+    return { name:'The Overextended Speculator',
+      lesson:"You borrowed aggressively into a market that was already flashing warning signs, and the unwind outran your liquidity. The rate spread on a carry trade is compensation for a risk that is real, not free money — sizing debt to what you can still repay if the funding currency reverses is what keeps the trade alive long enough to work.",
+      quote:"“Leverage doesn't create returns — it removes your ability to wait out the reversal.”" };
+  }
+  if(score.debtExposureScore<=6 && netPnL>0){
+    return { name:'The Bold Carry Trader',
+      lesson:"You leaned heavily into JPY funding while speculation was high, and the trade paid off. That outcome rewards conviction, but a high debt-exposure score this round means the same position would have looked very different if the unwind had been sharper or arrived a round earlier — the edge came from timing as much as from skill.",
+      quote:"“A carry trade that wins big and a carry trade that blows up look identical right up until the unwind.”" };
+  }
+  if(score.debtExposureScore>=8 && netPnL>0){
+    return { name:'The Disciplined Investor',
+      lesson:"You kept JPY debt exposure low relative to your portfolio and still finished with a positive Net P&L. That combination — capturing the spread without stacking excessive funding risk — is exactly what separates a repeatable carry trade from a leveraged bet on calm markets continuing.",
+      quote:"“The best carry trades are the ones you can afford to be wrong about.”" };
+  }
+  if(netPnL<=0 && score.debtExposureScore>=8){
+    return { name:'The Cautious Underperformer',
+      lesson:"You kept debt and concentration low, which protected you from the worst of the unwind — but that same caution capped your upside during the boom rounds. Prudence prevented a blow-up, though it also left return on the table when conditions were favorable.",
+      quote:"“Risk management that never takes a position isn't free — it just charges you in upside instead of losses.”" };
+  }
+  return { name:'The Balanced Operator',
+    lesson:"Your run mixed periods of measured risk-taking with periods of caution, landing on a result that reflects a workable but not fully optimized approach to the funding-currency trade. The BOJ hike in Round 3 and the yen's sharp appreciation were the moments that mattered most — how exposure was positioned going into that round shaped most of the final outcome.",
+    quote:"“In a carry trade, the entry decision matters less than what you're still holding when the funding currency turns.”" };
 }
 
 function renderFinal(){
   document.getElementById('coinSvg')?.classList.add('wilted');
   $('roundTag').textContent='Final Result';
+  stopTimer();
   const s=state._settlement;
   const finalWealth = s.finalUSDWealth;
   const netPnL = finalWealth - state.initialWealth;
   const breakdown = computeBreakdown();
-  const score = computeScore(finalWealth, netPnL);
+  const score = computeScore(netPnL);
+  const feedback = buildFeedback(breakdown, score);
+  const archetype = deriveArchetype(netPnL, score);
   const status = Finance.status(finalWealth, state.bankrupt);
+  const netPnLReturn = state.totalBorrowedUSD>0 ? (netPnL/state.totalBorrowedUSD)*100 : 0;
+
+  if(state.bankrupt) Audio1.alarm(); else Audio1.chime();
 
   const card=$('finalCard');
   card.innerHTML=`
-    <h1>${state.bankrupt ? 'Bankrupt' : 'Phase III Complete'}</h1>
+    <h1>${state.bankrupt ? 'Bankrupt' : 'Final Result'}</h1>
     <div class="tag">Role played: ${state.role.name} · Status: <span class="status-pill ${status}">${status.replace('_',' ')}</span></div>
     <div class="final-stats">
-      <div class="final-stat"><div class="flabel">Initial Player Wealth</div><div class="fval">${fmtUSD(state.initialWealth)}</div></div>
-      <div class="final-stat"><div class="flabel">Final USD Wealth</div><div class="fval ${finalWealth>=0?'pos':'neg'}">${fmtUSD(finalWealth)}</div></div>
-      <div class="final-stat"><div class="flabel">Final Net P&amp;L</div><div class="fval ${netPnL>=0?'pos':'neg'}">${fmtUSD(netPnL)}</div></div>
-      <div class="final-stat"><div class="flabel">Net P&amp;L Return</div><div class="fval ${netPnL>=0?'pos':'neg'}">${((netPnL/state.initialWealth)*100).toFixed(1)}%</div></div>
+      <div class="final-stat"><div class="flabel">Final Wealth</div><div class="fval ${finalWealth>=0?'pos':'neg'}">${fmtUSD(finalWealth)}</div></div>
+      <div class="final-stat"><div class="flabel">Total Score</div><div class="fval">${score.total.toFixed(0)} / 100</div></div>
+      <div class="final-stat"><div class="flabel">Net P&amp;L</div><div class="fval ${netPnL>=0?'pos':'neg'}">${fmtUSD(netPnL)}</div></div>
+      <div class="final-stat"><div class="flabel">Net P&amp;L Return</div><div class="fval ${netPnL>=0?'pos':'neg'}">${netPnLReturn.toFixed(1)}% <span style="font-size:0.65em;font-weight:400;">of USD funding used</span></div></div>
     </div>
+
+    <h2 class="panel-title" style="color:var(--tulip-dark);">P&amp;L breakdown</h2>
     <div class="debrief-block">
-      <h4>P&amp;L breakdown</h4>
-      <p class="mono" style="line-height:2;">
-        Investment P&amp;L (Tech + S&amp;P + US Cash interest): ${fmtUSD(breakdown.investmentPnL)}<br>
-        Funding P&amp;L (FX P&amp;L ${fmtUSD(breakdown.totalFxPnL)} − Interest cost ${fmtUSD(breakdown.totalInterestCost)}): ${fmtUSD(breakdown.fundingPnL)}<br>
-        Information cost: ${fmtUSD(-state.totalInfoCost)}<br>
-        <strong>Net P&amp;L: ${fmtUSD(breakdown.netPnL)}</strong>
+      <p class="mono" style="line-height:1.9;">
+        Investment P&amp;L: <strong>${fmtUSD(breakdown.investmentPnL)}</strong><br>
+        &nbsp;&nbsp;Tech P&amp;L: ${fmtUSD(breakdown.techPnL)}<br>
+        &nbsp;&nbsp;S&amp;P 500 P&amp;L: ${fmtUSD(breakdown.spPnL)}<br>
+        &nbsp;&nbsp;US Cash Interest: ${fmtUSD(state.totalUSCashInterest)}<br>
+        <br>
+        Funding P&amp;L: <strong>${fmtUSD(breakdown.fundingPnL)}</strong><br>
+        &nbsp;&nbsp;FX P&amp;L: ${fmtUSD(breakdown.totalFxPnL)}<br>
+        &nbsp;&nbsp;Floating Interest Cost: ${fmtUSD(-breakdown.totalInterestCost)}<br>
+        <br>
+        Information Cost: ${fmtUSD(-state.totalInfoCost)}<br>
+        <br>
+        <strong>NET P&amp;L: ${fmtUSD(breakdown.netPnL)}</strong>
       </p>
     </div>
+
+    <div class="wi-grid">
+      <div class="wi-col well"><h4>What you did well</h4><ul class="wi-list">${feedback.well.map(f=>`<li>✓ ${f}</li>`).join('')}</ul></div>
+      <div class="wi-col improve"><h4>What could be improved</h4><ul class="wi-list">${feedback.improve.map(f=>`<li>✗ ${f}</li>`).join('')}</ul></div>
+    </div>
+
     <h2 class="panel-title" style="color:var(--tulip-dark);">Score breakdown</h2>
     <div class="score-block">
       ${scoreRow('Financial Performance', score.financial, 50)}
       ${scoreRow('— Liquidity', score.liquidityScore, 10)}
       ${scoreRow('— Debt Exposure', score.debtExposureScore, 10)}
-      ${scoreRow('— Position Risk', score.positionRiskScore, 10)}
+      ${scoreRow('— Portfolio Risk', score.positionRiskScore, 10)}
       ${scoreRow('— Capital Efficiency', score.capitalEfficiency, 5)}
-      ${scoreRow('— Debt Timing', score.debtTiming, 5)}
-      ${scoreRow('— Information Use', score.infoUse, 5)}
+      ${scoreRow(`— Debt Timing (${score.debtTimingLabel})`, score.debtTiming, 5)}
+      ${scoreRow(`— Information Use (${score.infoUseLabel})`, score.infoUse, 5)}
       ${scoreRow('— Action Discipline', score.actionDiscipline, 5)}
     </div>
-    <div class="score-total">${score.total.toFixed(0)} / 100</div>
-    <button class="big-btn" id="finalNextBtn">Read the debrief</button>
+    <div class="score-total">TOTAL: ${score.total.toFixed(0)} / 100</div>
+
+    <div class="lesson-block">
+      <h4>Key lesson</h4>
+      <div class="archetype">${archetype.name}</div>
+      <p>${archetype.lesson}</p>
+      <div class="quote">${archetype.quote}</div>
+    </div>
+
+    <button class="big-btn" id="playAgainBtn">Play again</button>
   `;
-  $('finalNextBtn').onclick=()=>{ renderFullDebrief(breakdown, score); showStage('stage-fulldebrief'); };
+  $('playAgainBtn').onclick=()=>location.reload();
 }
 
 function scoreRow(name, val, max){
   const pct = clamp((val/max)*100,0,100);
-  return `<div class="score-row"><span class="sname">${name}</span><span class="sval">${val.toFixed(1)} / ${max}</span></div>
+  return `<div class="score-row"><span class="sname">${name}</span><span class="sval">${val.toFixed(0)} / ${max}</span></div>
     <div class="score-bar-track"><div class="score-bar-fill" style="width:${pct}%"></div></div>`;
-}
-
-/* ---------------- FULL DEBRIEF (no hindsight bias) ---------------- */
-function renderFullDebrief(breakdown, score){
-  $('roundTag').textContent='Debrief';
-  const lines=[];
-  state.perRoundSnapshots.forEach((snap,i)=>{
-    const r = ROUNDS[i];
-    const revealedCount = snap.actionsThisRound.filter(a=>a.startsWith('Paid')).length;
-    const parts=[];
-    parts.push(`Round ${i+1} closed with Net Wealth ${fmtUSD(snap.netWealth)} (${snap.status.replace('_',' ')}), JPY utilization ${(snap.debtUtilization*100).toFixed(0)}% and risk-asset share ${(snap.riskAssetShare*100).toFixed(0)}% of Gross Portfolio Value.`);
-    if(revealedCount>0) parts.push(`You paid for ${revealedCount} information reveal(s) — decisions that round could use that signal.`);
-    else parts.push(`You did not pay for information that round — decisions relied on headlines alone.`);
-    if(snap.actionsThisRound.length===0) parts.push(`No trades, borrowing, or repayment were made — a pure hold.`);
-    lines.push(`<li>${parts.join(' ')}</li>`);
-  });
-
-  const card=$('fullDebriefCard');
-  card.innerHTML=`
-    <h1>Debrief — ${state.role.name}</h1>
-    <div class="tag">Evaluated only on information available at the time each decision was made.</div>
-    <div class="debrief-block">
-      <h4>Round-by-round record</h4>
-      <ul class="feedback-list">${lines.join('')}</ul>
-    </div>
-    <div class="debrief-block">
-      <h4>Economic lesson</h4>
-      <p>The JPY carry trade profits from a stable, positive spread between the funding currency's near-zero rate and the returns on the assets it buys. That profit is not free: it is compensation for two risks that stayed hidden while the trade worked — the yen could strengthen and erase the FX gain on repayment, and the funded assets could fall in value at the same time credit conditions tighten. Both risks materialized together in Round 4, which is why leveraged carry trades unwind fast and all at once rather than fading slowly. Managing this trade means limiting JPY principal relative to your cap before the unwind and keeping enough liquid Free Cash and US Cash to repay debt without being forced to sell risk assets into a falling market.</p>
-    </div>
-    <div class="debrief-block">
-      <h4>Final score</h4>
-      <p>${score.total.toFixed(0)} / 100 — Financial Performance ${score.financial.toFixed(1)}/50, Risk Management ${score.risk.toFixed(1)}/30, Decision Quality ${score.decision.toFixed(1)}/20.</p>
-    </div>
-    <p style="font-family:var(--sub-font);font-size:0.8rem;color:#6b5a3a;">Phase III complete.</p>
-  `;
 }
 </script>
 </body>
