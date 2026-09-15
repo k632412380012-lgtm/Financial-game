@@ -87,14 +87,6 @@
 
   /* News type badges */
   .news-headline{font-weight:700;display:block;margin-bottom:3px;}
-  .type-badge{display:inline-block;margin-top:6px;font-family:var(--sub-font);font-size:0.72rem;font-weight:700;padding:2px 9px;border-radius:10px;}
-  .type-badge.positive{background:rgba(76,122,92,0.3);color:#a9e0bb;}
-  .type-badge.negative{background:rgba(184,52,46,0.3);color:#f0a29c;}
-  .type-badge.mixed{background:rgba(200,155,60,0.3);color:var(--gold-light);}
-  .type-badge.neutral{background:rgba(243,234,216,0.16);color:rgba(243,234,216,0.8);}
-  .type-badge.rumor{background:transparent;border:1px dashed rgba(228,200,120,0.55);color:var(--gold-light);}
-  .type-badge.noise{background:rgba(243,234,216,0.08);color:rgba(243,234,216,0.5);}
-  .type-badge.secondary{background:rgba(62,98,89,0.35);color:#bcdcd3;}
   .impact-line{margin-top:6px;font-family:var(--sub-font);font-size:0.74rem;color:var(--gold-light);background:rgba(228,200,120,0.1);border:1px solid rgba(228,200,120,0.3);border-radius:4px;padding:4px 8px;}
 
   /* Well / improved feedback lists */
@@ -552,7 +544,6 @@ const IND_LABELS = {
 };
 
 // News item "tone" -> badge color class
-const TONE_CLASS = { positive:'positive', negative:'negative', mixed:'mixed', neutral:'neutral', rumor:'rumor', noise:'noise', secondary:'secondary' };
 
 // Each round: BOJ funding rate (annual), USDJPY spot, US Tech & S&P 500 prices (USD),
 // US Cash return for the round (defensive asset only), plus narration/news/indicators.
@@ -991,24 +982,25 @@ function impactBucket(pct){
   if(pct>=40) return 'Medium';
   return 'Low';
 }
-function impactLineHTML(n){
-  if(!state.role.extraSignal || n.impactLevel==null) return '';
+function impactLineHTML(n, tier){
+  // Base news: impact level is an Information Hunter exclusive.
+  // Additional (paid) news: impact level is visible to whichever role bought it.
+  const canSee = tier==='additional' ? true : state.role.extraSignal;
+  if(!canSee || n.impactLevel==null) return '';
   return `<div class="impact-line">Impact Level: <b>${n.impactLevel}%</b> (${impactBucket(n.impactLevel)}) — magnitude of effect on next round's interest rate, USD/JPY, and asset prices</div>`;
 }
 function refreshNewsUI(r, items){
   document.querySelectorAll('#newsList .news-item').forEach((li,i)=>{
     const n=items[i];
     if(n.tier==='base'){
-      const toneClass = TONE_CLASS[n.tone] || 'neutral';
-      li.innerHTML = `<span class="news-headline">${n.emoji||''} ${n.headline}</span>${n.text}<span class="type-badge ${toneClass}">${n.type}</span>${impactLineHTML(n)}`;
+      li.innerHTML = `<span class="news-headline">${n.emoji||''} ${n.headline}</span>${n.text}${impactLineHTML(n, 'base')}`;
       return;
     }
     // additional (purchasable) item — fully hidden until bought
     const revealed = state.revealedIdxThisRound.has(i);
     let body;
     if(revealed){
-      const toneClass = TONE_CLASS[n.tone] || 'neutral';
-      body = `<span class="news-headline">${n.emoji||''} ${n.headline}</span>${n.text}<span class="type-badge ${toneClass}">${n.type}</span>${impactLineHTML(n)}`;
+      body = `<span class="news-headline">${n.emoji||''} ${n.headline}</span>${n.text}${impactLineHTML(n, 'additional')}`;
     } else if(state.infoRevealedThisRound >= state.infoMaxThisRound){
       body = `<span class="news-headline">🔒 Additional Information</span><div class="truth-locked">Not purchased this round.</div>`;
     } else {
