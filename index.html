@@ -537,68 +537,60 @@ const ROLES = {
   }
 };
 
-const IND_LABELS = {
-  liquidity:'Liquidity — ease of exiting positions',
-  speculation:'Speculation — bubble risk & FOMO',
-  confidence:'Market Confidence — investor optimism'
-};
-
 // News item "tone" -> badge color class
 
 // Each round: BOJ funding rate (annual), USDJPY spot, US Tech & S&P 500 prices (USD),
-// US Cash return for the round (defensive asset only), plus narration/news/indicators.
-// Values sourced from the Phase III scenario README: JPY rate/FX table, asset price table,
-// and per-round market indicator scores.
+// US Cash return for the round (defensive asset only), plus narration/news.
+// Values sourced directly from the Phase III scenario workbook (Inputs sheet).
 const ROUNDS = [
   {
-    id:1, label:'Round 1 — Calm Market / Carry Trade Boom', months:6,
-    bojRate:0.001, usdjpy:155, techPrice:450, spPrice:520, usCashReturn:0.045,
-    macroNote:"BOJ holds its policy rate at a low base of 0–0.1%; the yen continues to serve as the market's primary funding currency.",
-    narration:"Calm markets and a wide rate gap are drawing money into the yen carry trade. The Bank of Japan holds its policy rate near zero, and speculative positioning is already elevated even as confidence stays high.",
-    indicators:{ liquidity:90, speculation:95, confidence:85 },
+    id:1, label:'Round 1 — Carry Build-Up', months:3,
+    bojRate:0.001, usdjpy:150, techPrice:450, spPrice:520, usCashReturn:0.002,
+    macroNote:"BOJ policy rate: 0–0.1%.",
+    narration:"BOJ rates stay near zero, drawing cheap yen into the carry trade.",
     news:[
-      {tier:'base', emoji:'💻', headline:'AI Infrastructure Boom', text:"US data-center operators are accelerating investment in new facilities as demand for AI computing capacity continues to grow. Several semiconductor and cloud companies announce plans to expand production and infrastructure capacity.", impactLevel:50},
-      {tier:'base', emoji:'🏦', headline:'Flight to Quality', text:"Several large institutional investors report increasing allocations to high-quality government securities as they seek greater portfolio stability amid growing uncertainty in global markets.", impactLevel:10},
-      {tier:'additional', emoji:'🛢', headline:'Middle East Escalation', text:"Military tensions escalate in the Middle East, raising concerns about disruptions to regional oil production and shipping routes. Several energy companies warn that prolonged disruptions could affect global supply.", impactLevel:20}
+      {tier:'base', emoji:'💻', headline:'AI Infrastructure Boom', text:"Data-center operators ramp up spending as AI compute demand grows.", impactLevel:50},
+      {tier:'base', emoji:'🏦', headline:'Flight to Quality', text:"Institutions shift more capital into high-quality government securities.", impactLevel:10},
+      {tier:'additional', emoji:'🛢', headline:'Middle East Escalation', text:"Rising Middle East tensions raise concerns over oil supply.", impactLevel:20}
     ]
   },
   {
-    id:2, label:'Round 2 — Early Warning', months:6,
-    bojRate:0.001, usdjpy:160, techPrice:500, spPrice:560, usCashReturn:0.055,
-    macroNote:"USD/JPY touches a weak peak near 160; rumors begin to circulate that the BOJ may intervene.",
-    narration:"Cracks are forming beneath the surface. Currency-intervention rumors swirl, speculative carry positioning is being trimmed at the margin, and confidence has slipped from its highs even as headline conditions still look stable.",
-    indicators:{ liquidity:70, speculation:60, confidence:60 },
+    id:2, label:'Round 2 — Crowded Carry', months:3,
+    bojRate:0.001, usdjpy:160, techPrice:515, spPrice:570, usCashReturn:0.015,
+    macroNote:"USD/JPY nears a weak peak; intervention talk builds.",
+    narration:"Cracks are forming — intervention rumors swirl as the yen weakens further.",
     news:[
-      {tier:'additional', emoji:'💴', headline:'BOJ Intervention Rumor', text:"Japanese financial media report that authorities are closely monitoring recent movements in the currency market. Some market participants speculate that officials could take action if market conditions become excessive.", impactLevel:80},
-      {tier:'base', emoji:'📊', headline:'Analyst Forecasts', text:"Analysts expect US companies to focus mainly on maintenance and replacement investment, while moderate consumer demand continues to support steady business activity.", impactLevel:50},
-      {tier:'base', emoji:'🛍', headline:'Moderate Consumer Demand', text:"Recent reports from major retailers suggest that consumer spending remains moderate, with households continuing to spend but becoming more selective in their purchases.", impactLevel:20}
+      {tier:'additional', emoji:'💴', headline:'BOJ Intervention Rumor', text:"Officials are reportedly watching the yen closely for possible action.", impactLevel:80},
+      {tier:'base', emoji:'📊', headline:'Analyst Forecasts', text:"Analysts expect steady but unspectacular US business investment.", impactLevel:50},
+      {tier:'base', emoji:'🛍', headline:'Moderate Consumer Demand', text:"Retailers report steady but more selective consumer spending.", impactLevel:20}
     ]
   },
   {
-    id:3, label:'Round 3 — Carry Trade Unwind / Market Crash', months:6,
-    bojRate:0.0025, usdjpy:142.0, techPrice:388, spPrice:515, usCashReturn:0.07,
-    macroNote:"The BOJ officially raises its policy rate to 0.25%; the yen appreciates sharply and abruptly.",
-    narration:"The unwind is here. The Bank of Japan has hiked its policy rate and the yen is appreciating sharply. Liquidity has thinned, speculative appetite has collapsed, and confidence has cratered alongside falling risk assets.",
-    indicators:{ liquidity:40, speculation:15, confidence:15 },
+    id:3, label:'Round 3 — Carry Unwind', months:3,
+    bojRate:0.0025, usdjpy:142, techPrice:345, spPrice:490, usCashReturn:0.003,
+    macroNote:"BOJ raises its policy rate to 0.25%.",
+    narration:"The unwind hits — BOJ hikes rates and the yen jumps.",
     news:[
-      {tier:'additional', emoji:'🏦', headline:'BOJ Raises Rates', text:"The Bank of Japan raises its policy rate to 0.25%, citing higher inflation and continued increases in wages and prices. The BOJ indicates that further rate hikes may follow if inflation remains elevated and economic conditions continue to develop as expected.", impactLevel:90},
-      {tier:'base', emoji:'🏛', headline:'Fed Holds Rates', text:"The Federal Reserve keeps its policy rate unchanged despite inflation continuing to ease toward its 2% target, which would normally support a rate cut. However, the recent increase in the unemployment rate raises concerns about the labor market.", impactLevel:60},
-      {tier:'base', emoji:'🏭', headline:'US Manufacturing Weakness', text:"A survey of US manufacturers shows a decline in new orders, fueling concerns about weakening industrial activity. However, companies report that existing orders remain relatively stable.", impactLevel:30}
+      {tier:'additional', emoji:'🏦', headline:'BOJ Raises Rates', text:"BOJ lifts its policy rate to 0.25%, citing rising inflation.", impactLevel:90},
+      {tier:'base', emoji:'🏛', headline:'Fed Holds Rates', text:"The Fed holds rates steady despite cooling inflation.", impactLevel:60},
+      {tier:'base', emoji:'🏭', headline:'US Manufacturing Weakness', text:"New manufacturing orders decline, though existing orders hold steady.", impactLevel:30}
     ]
   },
   {
-    id:4, label:'Round 4 — Market Recovery', months:6,
-    bojRate:0.0025, usdjpy:146.5, techPrice:445, spPrice:545, usCashReturn:0.04,
-    macroNote:"The BOJ signals a pause in further tightening; the exchange rate recovers toward a technical equilibrium.",
-    narration:"Markets stabilize. The BOJ signals patience on further hikes, forced deleveraging fades, and risk assets recover — though positioning remains far more cautious than before the crash.",
-    indicators:{ liquidity:85, speculation:30, confidence:75 },
+    id:4, label:'Round 4 — Recovery', months:3,
+    bojRate:0.0025, usdjpy:152, techPrice:410, spPrice:510, usCashReturn:0.0075,
+    macroNote:"BOJ signals a pause in further hikes.",
+    narration:"Markets stabilize as the BOJ signals a pause and risk assets recover.",
     news:[
-      {tier:'additional', emoji:'🕊', headline:'BOJ Signals Patience', text:"BOJ officials signal that further rate increases will be approached cautiously, with financial-market stability taken into account when considering future policy moves.", impactLevel:70},
-      {tier:'base', emoji:'📉', headline:'Margin Calls Force Deleveraging', text:"Following the sharp market decline, leveraged investors face margin calls and begin reducing leverage and closing positions. Many remain cautious about rebuilding large positions until markets stabilize.", impactLevel:80},
-      {tier:'base', emoji:'🛒', headline:'US Consumer Spending Surges', text:"US retail sales rose 1.0% in July, far exceeding expectations and signaling resilient consumer demand.", impactLevel:50}
+      {tier:'additional', emoji:'🕊', headline:'BOJ Signals Patience', text:"BOJ officials say further hikes will be approached cautiously.", impactLevel:70},
+      {tier:'base', emoji:'📉', headline:'Margin Calls Force Deleveraging', text:"Leveraged investors cut positions after the sharp decline.", impactLevel:80},
+      {tier:'base', emoji:'🛒', headline:'US Consumer Spending Surges', text:"US retail sales beat expectations, up 1.0% in July.", impactLevel:50}
     ]
   }
 ];
+
+// Distinct End Phase liquidation prices — not a repeat of Round 4's prices.
+const SETTLEMENT_PRICES = { usdjpy:147, techPrice:400, spPrice:525 };
 
 const ASSET_LABELS = { tech:'US Tech', sp:'S&P 500' };
 const ROUND_SECONDS = 300; // 5 minutes per round
@@ -670,10 +662,15 @@ const Finance = {
   accrueLoanInterest(loan, bojRateAnnual, months){
     return loan.principal * bojRateAnnual * (months/12);
   },
-  repaymentQuote(loan, usdjpy){
-    const totalJPYDue = loan.principal + loan.accruedInterest;
-    const usdRequired = totalJPYDue/usdjpy;
-    return { totalJPYDue, usdRequired };
+  // Repayment must include interest for the CURRENT round, not just interest
+  // already accrued through the previous round's close — a loan repaid mid-round
+  // was still outstanding for this round's full period before being paid off.
+  repaymentQuote(loan, r){
+    const interestThisRound = this.accrueLoanInterest(loan, r.bojRate, r.months);
+    const projectedAccruedInterest = loan.accruedInterest + interestThisRound;
+    const totalJPYDue = loan.principal + projectedAccruedInterest;
+    const usdRequired = totalJPYDue/r.usdjpy;
+    return { totalJPYDue, usdRequired, interestThisRound, projectedAccruedInterest };
   },
   buyCost(qty, price){ return qty*price; },
   sellProceeds(qty, price){ return qty*price; },
@@ -827,14 +824,12 @@ function renderConfirm(role){
   const card=$('confirmCard');
   card.innerHTML=`
     <h1>${role.name}</h1>
-    <div class="tag">Role confirmed. Review your starting position before entering Round 1.</div>
+    <div class="tag">Review your starting position before entering Round 1.</div>
     <div class="final-stats">
       <div class="final-stat"><div class="flabel">Starting Free Cash</div><div class="fval">$0</div></div>
       <div class="final-stat"><div class="flabel">Max JPY Borrowing Cap</div><div class="fval">${fmtJPY(role.maxJPY)}</div></div>
-      <div class="final-stat"><div class="flabel">USD-Equivalent Cross-Cap</div><div class="fval">${fmtUSD(role.maxUSD)}</div></div>
       <div class="final-stat"><div class="flabel">Information cost / reveal</div><div class="fval">${fmtUSD(role.infoCost)}</div></div>
     </div>
-    <p>You start with <strong>$0</strong> — borrowing JPY is your only source of investable capital. Your borrowing cap works like a revolving limit on your <strong>outstanding</strong> JPY principal: each round you can borrow a 25%/50%/75%/100% package of your role's cap, and repaying a loan in full frees that capacity up again, up to your role's max. Each round you can borrow, buy US Tech / S&amp;P 500 / US Cash, then optionally sell, withdraw, or repay a loan in full. After Round 4, everything is auto-settled at the final market rate.</p>
     <button class="big-btn" id="confirmNextBtn">Begin Phase III</button>
   `;
   $('confirmNextBtn').onclick=()=>{ renderBriefing(0); showStage('stage-briefing'); };
@@ -856,10 +851,6 @@ function renderBriefing(idx){
       <div class="final-stat"><div class="flabel">BOJ funding rate (annual)</div><div class="fval">${(r.bojRate*100).toFixed(2)}%</div></div>
       <div class="final-stat"><div class="flabel">US Tech price</div><div class="fval">${fmtUSD(r.techPrice)}</div></div>
       <div class="final-stat"><div class="flabel">S&amp;P 500 price</div><div class="fval">${fmtUSD(r.spPrice)}</div></div>
-    </div>
-    <div class="final-stats">
-      <div class="final-stat"><div class="flabel">Liquidity</div><div class="fval">${r.indicators.liquidity}/100</div></div>
-      <div class="final-stat"><div class="flabel">Speculation</div><div class="fval">${r.indicators.speculation}/100</div></div>
     </div>
     <button class="big-btn" id="briefingNextBtn">Proceed to market</button>
   `;
@@ -887,14 +878,6 @@ function startRound(idx){
     <div class="macro-cell"><div class="mlabel">S&amp;P 500</div><div class="mval">${fmtUSD(r.spPrice)}</div></div>
   `;
   $('macroNote').textContent = r.macroNote;
-
-  const indWrap=$('indicatorsWrap'); indWrap.innerHTML='';
-  Object.entries(r.indicators).forEach(([k,v])=>{
-    const row=document.createElement('div');
-    row.innerHTML=`<div class="indicator-label"><span class="iname">${IND_LABELS[k]}</span><span>${v}/100</span></div>
-      <div class="bar-track"><div class="bar-fill" style="width:${v}%"></div></div>`;
-    indWrap.appendChild(row);
-  });
 
   document.getElementById('coinSvg').classList.remove('wilted');
 
@@ -1171,12 +1154,12 @@ function renderRepayWrap(){
   }
   wrap.innerHTML='';
   state.loans.forEach(l=>{
-    const {totalJPYDue, usdRequired} = Finance.repaymentQuote(l, r.usdjpy);
+    const {totalJPYDue, usdRequired, projectedAccruedInterest} = Finance.repaymentQuote(l, r);
     const canRepay = state.freeCash >= usdRequired;
     const row=document.createElement('div'); row.className='loan-row';
     row.innerHTML=`
       <span class="loan-id">#${l.id}</span>
-      <span class="mono">Opened R${l.openRound+1} · Principal ${fmtJPY(l.principal)} · Interest ${fmtJPY(l.accruedInterest)} · Due ${fmtJPY(totalJPYDue)}</span>
+      <span class="mono">Opened R${l.openRound+1} · Principal ${fmtJPY(l.principal)} · Interest ${fmtJPY(projectedAccruedInterest)} (incl. this round) · Due ${fmtJPY(totalJPYDue)}</span>
       <span class="mono">≈ ${fmtUSD(usdRequired)}</span>
       <button class="mini-btn" ${canRepay?'':'disabled'} data-id="${l.id}" title="${canRepay?'':'Insufficient Free Cash'}">Repay in full</button>
       <span></span>`;
@@ -1190,8 +1173,9 @@ function doRepay(loanId){
   const idx=state.loans.findIndex(l=>l.id===loanId);
   if(idx===-1) return;
   const l=state.loans[idx];
-  const {totalJPYDue, usdRequired} = Finance.repaymentQuote(l, r.usdjpy);
+  const {totalJPYDue, usdRequired, projectedAccruedInterest} = Finance.repaymentQuote(l, r);
   if(state.freeCash < usdRequired){ toast('Insufficient Free Cash to repay in full.'); state.invalidAttempts++; return; }
+  l.accruedInterest = projectedAccruedInterest; // lock in this round's interest before payoff
   const metrics = Finance.closeLoanMetrics(l, r.usdjpy);
   state.freeCash -= usdRequired;
   state.closedLoans.push({...l, closedRound:state.roundIndex, usdjpyAtClose:r.usdjpy, ...metrics});
@@ -1423,7 +1407,7 @@ function renderRoundDebrief(r, snap){
   const card=$('debriefCard');
   card.innerHTML=`
     <h1>${r.label} — Market Close</h1>
-    <div class="tag">Liquidity ${r.indicators.liquidity} · Speculation ${r.indicators.speculation} · Confidence ${r.indicators.confidence}</div>
+    <div class="tag">USD/JPY ${r.usdjpy.toFixed(2)} · BOJ ${(r.bojRate*100).toFixed(2)}%</div>
     <div class="debrief-block"><h4>Your round</h4><ul class="feedback-list">${feedback.map(f=>`<li>${f}</li>`).join('')}</ul></div>
     <div class="final-stats">
       <div class="final-stat"><div class="flabel">Gross Portfolio Value</div><div class="fval">${fmtUSD(snap.gross)}</div></div>
@@ -1441,7 +1425,7 @@ function renderRoundDebrief(r, snap){
 
 /* ---------------- END PHASE SETTLEMENT ---------------- */
 function runSettlement(){
-  const r = ROUNDS[ROUNDS.length-1]; // final round's closing prices/rate used for settlement
+  const r = SETTLEMENT_PRICES; // distinct End Phase liquidation prices (not Round 4's)
   const log=[];
 
   // 1. Auto-sell all assets
